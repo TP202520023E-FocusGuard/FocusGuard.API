@@ -80,3 +80,17 @@ class UserClassificationCreate(BaseModel):
     id_sitio: int
     id_clasificacion: int
 
+class SiteClassificationUpdate(BaseModel):
+    # Para sitios base
+    site_id: Optional[int] = None
+    # Para sitios personales  
+    dominio: Optional[str] = None
+    # Común
+    id_clasificacion: int
+    
+    def validate_site_or_domain(self):
+        if not self.site_id and not self.dominio:
+            raise ValueError('Debe proporcionar site_id o dominio')
+        if self.site_id and self.dominio:
+            raise ValueError('Proporcione solo site_id o dominio, no ambos')
+        return self

@@ -4,7 +4,8 @@ from app.modules.sites.implementation.site_repository import SiteRepository
 from app.modules.sites.schemas.site_schema import (
     ClassificationBase, CombinedSiteWithClassification,
     NavigationHistoryCreate, NavigationHistoryUpdate, 
-    UnifiedClassificationUpdate, ClassificationResponse
+    UnifiedClassificationUpdate, ClassificationResponse,
+    SiteClassificationUpdate
 )
 from app.core.exceptions import BusinessException, ValidationException, NotFoundException
 
@@ -148,3 +149,57 @@ class SiteService:
             return updated is not None
         except Exception as e:
             raise BusinessException(f"Error ending navigation session: {str(e)}")
+        
+    async def update_site_classification(
+        self, 
+        user_id: int, 
+        classification_data: SiteClassificationUpdate
+    ) -> ClassificationResponse:
+        """
+        Actualiza la clasificación de un sitio (base o personal)
+        """
+        try:
+            # Validar que la clasificación existe
+            classifications = await self.repository.get_all_classifications()
+            classification_ids = [c.id_clasificacion for c in classifications]
+            if classification_data.id_clasificacion not in classification_ids:
+                raise ValidationException(f"Classification with id {classification_data.id_clasificacion} does not exist")
+            
+            if classification_data.site_id:
+                # 🏷️ Es sitio BASE
+                site = await self.repository.get_site_base_by_id(classification_data.site_id)
+                if not site:
+                    raise NotFoundException(f"Site with id {classification_data.site_id} does not exist")
+                
+                from app.modules.sites.schemas.site_schema import UserClassificationCreate
+                site_data = UserClassificationCreate(
+                    id_sitio=classification_data.site_id,
+                    id_clasificacion=classification_data.id_clasificacion
+                )
+                
+                await self.repository.save_user_classification(site_data, user_id)
+                return ClassificationResponse(
+                    success=True,
+                    message="Sitio base clasificado exitosamente",
+                    tipo_sitio="base"
+                )
+                
+            elif classification_data.dominio:
+                # 🌟 Es sitio PERSONAL
+                await self.repository.update_user_site_classification(
+                    user_id, 
+                    classification_data.dominio, 
+                    classification_data.id_clasificacion
+                )
+                return ClassificationResponse(
+                    success=True,
+                    message="Sitio personal clasificado exitosamente", 
+                    tipo_sitio="personal"
+                )
+            else:
+                raise ValidationException("Must provide either site_id or dominio")
+                
+        except (ValidationException, NotFoundException):
+            raise
+        except Exception as e:
+            raise BusinessException(f"Error updating site classification: {str(e)}")

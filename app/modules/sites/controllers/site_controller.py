@@ -5,7 +5,7 @@ from app.core.database import get_db
 from app.modules.sites.services.site_service import SiteService
 from app.modules.sites.schemas.site_schema import (
     ClassificationBase, NavigationHistoryCreate, NavigationHistoryUpdate,
-    CombinedSiteWithClassification
+    CombinedSiteWithClassification, SiteClassificationUpdate, ClassificationResponse
 )
 from app.core.exceptions import DatabaseException, BusinessException, ValidationException, NotFoundException
 
@@ -86,4 +86,31 @@ async def get_combined_sites_with_classification(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error getting combined sites: {str(e)}"
+        )
+    
+@router.put("/user/{user_id}/classification", response_model=ClassificationResponse)
+async def update_site_classification(
+    user_id: int,
+    classification_data: SiteClassificationUpdate,  # ✅ Ahora viene del body
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Actualiza la clasificación de un sitio (base o personal)
+    
+    - Para sitios base: enviar site_id en el body
+    - Para sitios personales: enviar dominio en el body  
+    - Siempre enviar id_clasificacion
+    """
+    try:
+        service = SiteService(db)
+        return await service.update_site_classification(user_id, classification_data)
+    except (ValidationException, NotFoundException) as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error updating site classification: {str(e)}"
         )
