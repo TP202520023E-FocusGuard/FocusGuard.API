@@ -55,13 +55,41 @@ async def end_navigation_session(
     update_data: NavigationHistoryUpdate,
     db: AsyncSession = Depends(get_db)
 ):
-    """Finaliza una sesión de navegación"""
+    """Finaliza una sesión de navegación y genera predicción ML"""
     try:
-        service = SiteService(db)
-        success = await service.end_navigation_session(history_id, update_data)
+        print(f"🔍 Iniciando end_navigation_session para history_id: {history_id}")
         
+        service = SiteService(db)
+        print(f"🔍 SiteService creado exitosamente")
+        
+        success = await service.end_navigation_session(history_id, update_data)
+        print(f"🔍 end_navigation_session completado: {success}")
+
         if success:
-            return {"message": "Navigation session ended successfully"}
+            print(f"🔍 Llamando a ML Service...")
+            # ✅ IMPORTACIÓN DIFERIDA
+            from app.modules.ml.services.ml_service import MLService
+            ml_service = MLService(db)
+            
+            # ✅ CORREGIDO: usar generate_and_store_prediction en lugar de generate_prediction
+            prediction = await ml_service.generate_and_store_prediction(user_id=1)
+            print(f"🔍 Predicción ML completada: {prediction is not None}")
+
+            response_data = {
+                "message": "Navigation session ended successfully"
+            }
+            
+            if prediction:
+                response_data["prediction"] = {
+                    "focus_level": prediction.focus_level,
+                    "needs_intervention": prediction.needs_intervention,
+                    "confidence": prediction.confidence,
+                    "predicted_duration": prediction.predicted_duration,
+                    "risk_factors": prediction.risk_factors
+                }
+                print(f"🔍 Predicción incluida en respuesta")
+
+            return response_data
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

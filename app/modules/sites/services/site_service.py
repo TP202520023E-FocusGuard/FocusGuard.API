@@ -7,6 +7,8 @@ from app.modules.sites.schemas.site_schema import (
     UnifiedClassificationUpdate, ClassificationResponse,
     SiteClassificationUpdate
 )
+
+from app.modules.ml.services.prediction_service import PredictionService
 from app.core.exceptions import BusinessException, ValidationException, NotFoundException
 
 class SiteService:
@@ -144,11 +146,14 @@ class SiteService:
 
     async def end_navigation_session(self, history_id: int, update_data: NavigationHistoryUpdate) -> bool:
         """Finaliza una sesión de navegación"""
-        try:
-            updated = await self.repository.update_navigation_history(history_id, update_data)
-            return updated is not None
-        except Exception as e:
-            raise BusinessException(f"Error ending navigation session: {str(e)}")
+        updated = await self.repository.update_navigation_history(history_id, update_data)
+        if updated:
+            from app.modules.ml.services.ml_service import MLService
+            ml_service = MLService(self.repository.session)
+            prediction_service = PredictionService(self.repository)
+            await ml_service.generate_and_store_prediction(updated.id_usuario)
+            return True
+        return False
         
     async def update_site_classification(
         self, 
