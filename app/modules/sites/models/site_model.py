@@ -79,7 +79,7 @@ class UserClassificationModel(Base):
     clasificacion: Mapped["ClassificationModel"] = relationship("ClassificationModel")
 
 class NavigationHistoryModel(Base):
-    __tablename__ = "historial_navegacion"
+    __tablename__ = "Historial_Navegacion"
     
     id_historial: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     id_usuario: Mapped[int] = mapped_column(Integer, nullable=False)
