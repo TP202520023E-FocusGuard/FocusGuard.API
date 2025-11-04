@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-# from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 # from app.modules.categories.controllers.category_controller import router as categories_router
 # from app.modules.configuration.controllers.configuration_controller import router as configuration_router
 from app.modules.websites.controllers.website_controller import router as website_router
@@ -11,13 +11,22 @@ app = FastAPI(
 )
 
 # Configurar CORS
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+
+#EXTENSION_ORIGIN = "chrome-extension://jmnlmmgpeadljmioaojnmihpoddebcml"
+
+#origins = [
+#    "http://localhost",
+#    "http://localhost:8000",
+#    EXTENSION_ORIGIN,  # ID de la extensión
+#]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Include routers
 # app.include_router(categories_router, prefix="/api/v1")

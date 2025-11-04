@@ -11,13 +11,3 @@ class WebsiteModel(Base):
     dominio = Column(String(100), unique=True)
 
 
-
-
-
-
-
-
-
-
-
-
