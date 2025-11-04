@@ -5,14 +5,11 @@ from sqlalchemy.orm import sessionmaker
 # Formato: mysql+mysqldb://USUARIO:CONTRASEÑA@HOST/NOMBRE_BD
 DATABASE_URL = "mysql+mysqldb://root:root@localhost/focusguard"
 
-# Puedes reemplazar 'localhost' con la IP de tu servidor MySQL.
-
 # 2. CREAR EL ENGINE (MOTOR)
-# El Engine es el punto de partida de SQLAlchemy, maneja la conexión.
-# echo=True imprime las consultas SQL generadas en la consola (útil para debug).
+
 engine = create_engine(
     DATABASE_URL,
-    echo=False
+    echo=False # echo=True imprime las consultas SQL generadas en la consola (útil para debug).
 )
 
 # 3. CREAR LA FÁBRICA DE SESIONES
