@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ..models.website_user_model import WebsiteUserModel
-from ..schemas.website_user_schema import WebsiteUserCreate
+from ..schemas.website_user_schema import (WebsiteUserCreate, WebsiteUserUpdate)
 
 
 class WebsiteUserRepository:
@@ -67,3 +67,30 @@ class WebsiteUserRepository:
         registros = self.db.scalars(stmt).all()
 
         return list(registros)
+
+    def update_by_user_and_website(
+            self,
+            user_id: int,
+            website_id: int,
+            data: WebsiteUserUpdate,
+    ) -> WebsiteUserModel:
+        registro = self.get_by_user_and_website(user_id, website_id)
+
+        if registro is None:
+            raise ValueError("No se encontró el registro solicitado.")
+
+        if data.id_categorias_web is not None:
+            registro.id_categorias_web = data.id_categorias_web
+
+        if data.origen is not None:
+            registro.origen = data.origen
+
+        try:
+            self.db.add(registro)
+            self.db.commit()
+            self.db.refresh(registro)
+        except SQLAlchemyError:
+            self.db.rollback()
+            raise
+
+        return registro

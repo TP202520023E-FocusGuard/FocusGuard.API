@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ..implementation.website_user_repository import WebsiteUserRepository
-from ..schemas.website_user_schema import (WebsiteUserCreate, WebsiteUserResponse)
+from ..schemas.website_user_schema import (WebsiteUserCreate, WebsiteUserUpdate, WebsiteUserResponse)
 
 
 class WebsiteUserService:
@@ -27,3 +27,12 @@ class WebsiteUserService:
     ) -> list[WebsiteUserResponse]:
         registros = self.repo.get_by_user_and_category(user_id, category_id)
         return [WebsiteUserResponse.model_validate(item) for item in registros]
+
+    def update_by_user_and_website(
+            self,
+            user_id: int,
+            website_id: int,
+            data: WebsiteUserUpdate,
+    ) -> WebsiteUserResponse:
+        registro = self.repo.update_by_user_and_website(user_id, website_id, data)
+        return WebsiteUserResponse.model_validate(registro)
