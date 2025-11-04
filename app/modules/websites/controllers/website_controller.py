@@ -9,7 +9,7 @@ router = APIRouter(prefix="/websites", tags=["websites"])
 
 
 # Función para inyectar la dependencia del servicio (incluyendo la BD)
-def get_website_service(db: Session = Depends(get_db)) -> WebsiteService:
+def get_service(db: Session = Depends(get_db)) -> WebsiteService:
     repo = WebsiteRepository(db_session=db) # 1. Repositorio: Se le pasa la sesión de BD abierta
     return WebsiteService(repo=repo) # 2. Servicio: Se le pasa el Repositorio
 
@@ -17,7 +17,7 @@ def get_website_service(db: Session = Depends(get_db)) -> WebsiteService:
 @router.post("/", response_model=WebsiteResponse, status_code=status.HTTP_201_CREATED)
 def crear_website(
         data: WebsiteCreate,
-        service: WebsiteService = Depends(get_website_service)  # Inyección del servicio
+        service: WebsiteService = Depends(get_service)  # Inyección del servicio
 ):
     try:
         nuevo_website = service.crear_website(data)
