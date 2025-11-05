@@ -15,7 +15,7 @@ class WebsiteUserRepository:
     def __init__(self, db_session: AsyncSession) -> None:
         self.db = db_session
 
-    def create(self, data: WebsiteUserCreate) -> WebsiteUserModel:
+    async def create(self, data: WebsiteUserCreate) -> WebsiteUserModel:
         registro = WebsiteUserModel(
             id_usuarios=data.id_usuarios,
             id_sitios_web=data.id_sitios_web,
@@ -25,28 +25,28 @@ class WebsiteUserRepository:
 
         try:
             self.db.add(registro)
-            self.db.commit()
-            self.db.refresh(registro)
+            await self.db.commit()
+            await self.db.refresh(registro)
             return registro
         except IntegrityError as exc:
-            self.db.rollback()
+            await self.db.rollback()
             raise ValueError(
                 "Ya existe un registro para este usuario y sitio web."
             ) from exc
         except SQLAlchemyError:
-            self.db.rollback()
+            await self.db.rollback()
             raise
 
-    def get_by_user(self, user_id: int) -> list[WebsiteUserModel]:
+    async def get_by_user(self, user_id: int) -> list[WebsiteUserModel]:
 
         stmt = select(WebsiteUserModel).where(
             WebsiteUserModel.id_usuarios == user_id
         )
-        registros = self.db.scalars(stmt).all()
+        registros = (await self.db.scalars(stmt)).all()
 
         return list(registros)
 
-    def get_by_user_and_website(
+    async def get_by_user_and_website(
             self, user_id: int, website_id: int
     ) -> Optional[WebsiteUserModel]:
 
@@ -55,9 +55,9 @@ class WebsiteUserRepository:
             WebsiteUserModel.id_sitios_web == website_id
         )
 
-        return self.db.scalars(stmt).one_or_none()
+        return (await self.db.scalars(stmt)).one_or_none()
 
-    def get_by_user_and_category(
+    async def get_by_user_and_category(
             self, user_id: int, category_id: int
     ) -> list[WebsiteUserModel]:
 
@@ -66,17 +66,17 @@ class WebsiteUserRepository:
             WebsiteUserModel.id_categorias_web == category_id
         )
 
-        registros = self.db.scalars(stmt).all()
+        registros = (await self.db.scalars(stmt)).all()
 
         return list(registros)
 
-    def update_by_user_and_website(
+    async def update_by_user_and_website(
             self,
             user_id: int,
             website_id: int,
             data: WebsiteUserUpdate,
     ) -> WebsiteUserModel:
-        registro = self.get_by_user_and_website(user_id, website_id)
+        registro = await self.get_by_user_and_website(user_id, website_id)
 
         if registro is None:
             raise ValueError("No se encontró el registro solicitado.")
@@ -89,10 +89,10 @@ class WebsiteUserRepository:
 
         try:
             self.db.add(registro)
-            self.db.commit()
-            self.db.refresh(registro)
+            await self.db.commit()
+            await self.db.refresh(registro)
         except SQLAlchemyError:
-            self.db.rollback()
+            await self.db.rollback()
             raise
 
         return registro

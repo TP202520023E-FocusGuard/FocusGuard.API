@@ -18,12 +18,12 @@ def get_service(db: AsyncSession = Depends(get_db)) -> WebsiteService:
 
 
 @router.post("/", response_model=WebsiteResponse, status_code=status.HTTP_201_CREATED)
-def crear_website(
+async def crear_website(
         data: WebsiteCreate,
         service: WebsiteService = Depends(get_service)
 ):
     try:
-        nuevo_website = service.crear_website(data)
+        nuevo_website = await service.crear_website(data)
         return nuevo_website
 
     except ValueError as e:

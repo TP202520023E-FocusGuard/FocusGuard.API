@@ -16,7 +16,7 @@ class WebsiteVisitedRepository:
     def __init__(self, db_session: AsyncSession) -> None:
         self.db = db_session
 
-    def create(self, data: WebsiteVisitedCreate) -> WebsiteVisitedModel:
+    async def create(self, data: WebsiteVisitedCreate) -> WebsiteVisitedModel:
         registro = WebsiteVisitedModel(
             id_usuarios=data.id_usuarios,
             id_sitios_web_usuario=data.id_sitios_web_usuario,
@@ -26,27 +26,27 @@ class WebsiteVisitedRepository:
 
         try:
             self.db.add(registro)
-            self.db.commit()
-            self.db.refresh(registro)
+            await self.db.commit()
+            await self.db.refresh(registro)
             return registro
         except SQLAlchemyError:
-            self.db.rollback()
+            await self.db.rollback()
             raise
 
-    def get_by_id(self, visit_id: int) -> Optional[WebsiteVisitedModel]:
-        return self.db.get(WebsiteVisitedModel, visit_id)
+    async def get_by_id(self, visit_id: int) -> Optional[WebsiteVisitedModel]:
+        return await self.db.get(WebsiteVisitedModel, visit_id)
 
-    def get_by_user(self, user_id: int) -> list[WebsiteVisitedModel]:
+    async def get_by_user(self, user_id: int) -> list[WebsiteVisitedModel]:
         stmt = (
             select(WebsiteVisitedModel)
             .where(WebsiteVisitedModel.id_usuarios == user_id)
             .order_by(WebsiteVisitedModel.fecha_hora_ingreso.desc())
         )
 
-        registros = self.db.scalars(stmt).all()
+        registros = (await self.db.scalars(stmt)).all()
         return list(registros)
 
-    def get_by_user_and_interval(
+    async def get_by_user_and_interval(
         self,
         user_id: int,
         start: datetime,
@@ -63,19 +63,19 @@ class WebsiteVisitedRepository:
             .order_by(WebsiteVisitedModel.fecha_hora_ingreso.desc())
         )
 
-        registros = self.db.scalars(stmt).all()
+        registros = (await self.db.scalars(stmt)).all()
         return list(registros)
 
-    def delete_by_id(self, visit_id: int) -> bool:
-        registro = self.get_by_id(visit_id)
+    async def delete_by_id(self, visit_id: int) -> bool:
+        registro = await self.get_by_id(visit_id)
 
         if registro is None:
             return False
 
         try:
-            self.db.delete(registro)
-            self.db.commit()
+            await self.db.delete(registro)
+            await self.db.commit()
             return True
         except SQLAlchemyError:
-            self.db.rollback()
+            await self.db.rollback()
             raise

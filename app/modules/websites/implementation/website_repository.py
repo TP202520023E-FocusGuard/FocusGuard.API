@@ -11,7 +11,7 @@ class WebsiteRepository:
     def __init__(self, db_session: AsyncSession):
         self.db = db_session
 
-    def create(self, data: WebsiteCreate) -> Optional[WebsiteModel]:
+    async def create(self, data: WebsiteCreate) -> Optional[WebsiteModel]:
         """Crea una categoría usando SQLAlchemy ORM."""
 
         # 1. CREACIÓN DIRECTA DEL OBJETO MAPPEDO
@@ -24,16 +24,16 @@ class WebsiteRepository:
             self.db.add(nuevo_website)
 
             # 3. EJECUCIÓN Y GESTIÓN DE LA TRANSACCIÓN
-            self.db.commit()
+            await self.db.commit()
 
             # 4. ACTUALIZA EL OBJETO CON EL ID (automático por SQLAlchemy)
-            self.db.refresh(nuevo_website)
+            await self.db.refresh(nuevo_website)
 
             # 5. DEVUELVE EL OBJETO PYTHON COMPLETO
             return nuevo_website
 
         except Exception as e:
             # Manejo de errores de base de datos
-            self.db.rollback()
+            await self.db.rollback()
             print(f"Error al crear: {e}")
             return None
