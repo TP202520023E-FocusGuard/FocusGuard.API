@@ -1,8 +1,9 @@
 from sqlalchemy import Column, Integer, String, Boolean
-from sqlalchemy.ext.declarative import declarative_base
+from app.core.database import Base
+#from sqlalchemy.ext.declarative import declarative_base
 
 # Base para todos los modelos ORM
-Base = declarative_base()
+#Base = declarative_base()
 
 class WebsiteModel(Base):
     __tablename__ = 'sitios_web'

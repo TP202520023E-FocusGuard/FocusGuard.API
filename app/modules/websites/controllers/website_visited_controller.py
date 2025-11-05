@@ -1,9 +1,12 @@
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
 
-from ....database import get_db
+#from sqlalchemy.orm import Session
+#from ....database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.database import get_db
+
 from ..implementation.website_visited_repository import WebsiteVisitedRepository
 from ..schemas.website_visited_schema import WebsiteVisitedCreate, WebsiteVisitedResponse
 from ..services.website_visited_service import WebsiteVisitedService
@@ -11,7 +14,7 @@ from ..services.website_visited_service import WebsiteVisitedService
 router = APIRouter(prefix="/website-visited", tags=["website_visited"])
 
 
-def get_service(db: Session = Depends(get_db)) -> WebsiteVisitedService:
+def get_service(db: AsyncSession = Depends(get_db)) -> WebsiteVisitedService:
     repo = WebsiteVisitedRepository(db_session=db)
     return WebsiteVisitedService(repo=repo)
 

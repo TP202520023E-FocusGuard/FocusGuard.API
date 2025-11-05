@@ -3,14 +3,16 @@ from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from sqlalchemy.orm import Session
+
+#from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.website_user_model import WebsiteUserModel
 from ..schemas.website_user_schema import (WebsiteUserCreate, WebsiteUserUpdate)
 
 
 class WebsiteUserRepository:
-    def __init__(self, db_session: Session) -> None:
+    def __init__(self, db_session: AsyncSession) -> None:
         self.db = db_session
 
     def create(self, data: WebsiteUserCreate) -> WebsiteUserModel:

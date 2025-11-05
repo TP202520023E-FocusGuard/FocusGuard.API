@@ -1,11 +1,14 @@
 from typing import Optional
-from sqlalchemy.orm import Session
+
+#from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from ..models.website_model import WebsiteModel
 from ..schemas.website_schema import WebsiteCreate
 
 class WebsiteRepository:
 
-    def __init__(self, db_session: Session):
+    def __init__(self, db_session: AsyncSession):
         self.db = db_session
 
     def create(self, data: WebsiteCreate) -> Optional[WebsiteModel]:

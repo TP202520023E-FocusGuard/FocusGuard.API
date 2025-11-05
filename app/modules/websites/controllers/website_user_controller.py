@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 
-from ....database import get_db
+#from sqlalchemy.orm import Session
+#from ....database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.database import get_db
+
 from ..implementation.website_user_repository import WebsiteUserRepository
 from ..schemas.website_user_schema import (WebsiteUserCreate, WebsiteUserUpdate, WebsiteUserResponse)
 from ..services.website_user_service import WebsiteUserService
@@ -9,7 +12,7 @@ from ..services.website_user_service import WebsiteUserService
 router = APIRouter(prefix="/website-users", tags=["website_users"])
 
 
-def get_service(db: Session = Depends(get_db)) -> WebsiteUserService:
+def get_service(db: AsyncSession = Depends(get_db)) -> WebsiteUserService:
     repo = WebsiteUserRepository(db_session=db)
     return WebsiteUserService(repo=repo)
 
