@@ -96,7 +96,6 @@ async def end_navigation_session(
                 detail="Navigation session not found"
             )
     except Exception as e:
-        print(f"❌ Error en end_navigation_session: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error ending navigation session: {str(e)}"
