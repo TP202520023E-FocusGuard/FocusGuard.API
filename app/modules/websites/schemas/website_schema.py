@@ -6,6 +6,6 @@ class WebsiteCreate(BaseModel):
 
 class WebsiteResponse(WebsiteCreate):
     id: int
-    # Permite que el ORM (SQLAlchemy) funcione sin errores
+
     class Config:
         from_attributes = True

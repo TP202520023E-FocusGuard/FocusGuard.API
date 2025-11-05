@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # from app.modules.configuration.controllers.configuration_controller import router as configuration_router
 from app.modules.websites.controllers.website_controller import router as website_router
 from app.modules.websites.controllers.website_user_controller import router as website_user_router
-
+from app.modules.websites.controllers.website_visited_controller import router as website_visited_router
 app = FastAPI(
     title="FocusGuard API",
     description="Sistema para detectar y reducir procrastinación digital",
@@ -34,6 +34,7 @@ app.add_middleware(
 # app.include_router(configuration_router, prefix="/api/v1")
 app.include_router(website_router, prefix="/api/v1")
 app.include_router(website_user_router, prefix="/api/v1")
+app.include_router(website_visited_router, prefix="/api/v1")
 
 
 @app.get("/")
