@@ -13,6 +13,10 @@ class CategoryWebsiteService:
         categoria = await self.repo.create(data)
         return CategoryWebsiteResponse.model_validate(categoria)
 
+    async def get_all(self) -> list[CategoryWebsiteResponse]:
+        categorias = await self.repo.get_all()
+        return [CategoryWebsiteResponse.model_validate(cat) for cat in categorias]
+
     async def get_by_id(self, category_id: int) -> CategoryWebsiteResponse:
         categoria = await self.repo.get_by_id(category_id)
         if categoria is None:

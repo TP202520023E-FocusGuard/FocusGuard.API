@@ -25,6 +25,11 @@ async def create_category_website(
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
+@router.get("/", response_model=list[CategoryWebsiteResponse])
+async def get_all_categories_website(
+    service: CategoryWebsiteResponse = Depends(get_service),
+):
+    return await service.get_all()
 
 @router.get("/{category_id}", response_model=CategoryWebsiteResponse)
 async def get_category_by_id(

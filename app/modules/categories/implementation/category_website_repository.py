@@ -26,6 +26,10 @@ class CategoryWebsiteRepository:
             await self.db.rollback()
             raise
 
+    async def get_all(self) -> list[CategoryWebsiteModel]:
+        result = await self.db.execute(select(CategoryWebsiteModel))
+        return list(result.scalars().all())
+
     async def get_by_id(self, category_id: int) -> Optional[CategoryWebsiteModel]:
         result = await self.db.execute(
             select(CategoryWebsiteModel).where(CategoryWebsiteModel.id == category_id)
