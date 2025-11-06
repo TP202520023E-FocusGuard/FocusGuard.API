@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-#from sqlalchemy.orm import Session
-#from ....database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
+from app.core.exceptions import NotFoundException
 
+from ..implementation.website_repository import WebsiteRepository
+from app.modules.categories.implementation.category_website_repository import CategoryWebsiteRepository
 from ..implementation.website_user_repository import WebsiteUserRepository
+
 from ..schemas.website_user_schema import (WebsiteUserCreate, WebsiteUserUpdate, WebsiteUserResponse)
 from ..services.website_user_service import WebsiteUserService
 
@@ -13,8 +15,14 @@ router = APIRouter(prefix="/website-users", tags=["website_users"])
 
 
 def get_service(db: AsyncSession = Depends(get_db)) -> WebsiteUserService:
-    repo = WebsiteUserRepository(db_session=db)
-    return WebsiteUserService(repo=repo)
+    website_user_repo = WebsiteUserRepository(db_session=db)
+    website_repo = WebsiteRepository(db_session=db)
+    category_repo = CategoryWebsiteRepository(db_session=db)
+    return WebsiteUserService(
+        repo=website_user_repo,
+        website_repo=website_repo,
+        category_repo=category_repo,
+    )
 
 
 @router.post("/", response_model=WebsiteUserResponse, status_code=status.HTTP_201_CREATED)
@@ -24,6 +32,10 @@ async def create_website_user(
 ) -> WebsiteUserResponse:
     try:
         return await service.create(data)
+    except NotFoundException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
@@ -71,6 +83,10 @@ async def update_by_user_and_website(
 ) -> WebsiteUserResponse:
     try:
         return await service.update_by_user_and_website(user_id, website_id, data)
+    except NotFoundException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)

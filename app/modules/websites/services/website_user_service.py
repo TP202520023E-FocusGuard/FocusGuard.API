@@ -1,14 +1,32 @@
-from __future__ import annotations
+from app.core.exceptions import NotFoundException
+
+from ..implementation.website_repository import WebsiteRepository
+from app.modules.categories.implementation.category_website_repository import CategoryWebsiteRepository
 
 from ..implementation.website_user_repository import WebsiteUserRepository
 from ..schemas.website_user_schema import (WebsiteUserCreate, WebsiteUserUpdate, WebsiteUserResponse)
 
 
 class WebsiteUserService:
-    def __init__(self, repo: WebsiteUserRepository) -> None:
+    def __init__(
+            self,
+            repo: WebsiteUserRepository,
+            website_repo: WebsiteRepository,
+            category_repo: CategoryWebsiteRepository,
+    ) -> None:
         self.repo = repo
+        self.website_repo = website_repo
+        self.category_repo = category_repo
 
     async def create(self, data: WebsiteUserCreate) -> WebsiteUserResponse:
+        website = await self.website_repo.get_by_id(data.id_sitios_web)
+        if website is None:
+            raise NotFoundException("El ID de sitio web proporcionado no existe.")
+
+        category = await self.category_repo.get_by_id(data.id_categorias_web)
+        if category is None:
+            raise NotFoundException("El ID de categoría web proporcionado no existe.")
+
         registro = await self.repo.create(data)
         return WebsiteUserResponse.model_validate(registro)
 
@@ -34,5 +52,10 @@ class WebsiteUserService:
             website_id: int,
             data: WebsiteUserUpdate,
     ) -> WebsiteUserResponse:
+        if data.id_categorias_web is not None:
+            category = await self.category_repo.get_by_id(data.id_categorias_web)
+            if category is None:
+                raise NotFoundException("El ID de categoría web proporcionado no existe.")
+
         registro = await self.repo.update_by_user_and_website(user_id, website_id, data)
         return WebsiteUserResponse.model_validate(registro)
