@@ -1,7 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-#from sqlalchemy.orm import Session
-#from ....database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 
@@ -18,13 +16,69 @@ def get_service(db: AsyncSession = Depends(get_db)) -> WebsiteService:
 
 
 @router.post("/", response_model=WebsiteResponse, status_code=status.HTTP_201_CREATED)
-async def crear_website(
+async def create_website(
         data: WebsiteCreate,
-        service: WebsiteService = Depends(get_service)
-):
+        service: WebsiteService = Depends(get_service),
+) -> WebsiteResponse:
     try:
-        nuevo_website = await service.crear_website(data)
-        return nuevo_website
+        return await service.create_website(data)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
+        ) from exc
 
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+@router.get("/", response_model=list[WebsiteResponse])
+async def get_all_websites(
+    service: WebsiteService = Depends(get_service),
+) -> list[WebsiteResponse]:
+    return await service.get_websites()
+
+@router.get("/{website_id}", response_model=WebsiteResponse)
+async def get_website_by_id(
+    website_id: int,
+    service: WebsiteService = Depends(get_service),
+) -> WebsiteResponse:
+    try:
+        return await service.get_by_id(website_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
+
+@router.get("/by-domain/{dominio}", response_model=WebsiteResponse)
+async def gey_website_by_domain(
+    dominio: str,
+    service: WebsiteService = Depends(get_service),
+) -> WebsiteResponse:
+    try:
+        return await service.get_by_domain(dominio)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
+
+
+@router.delete("/{website_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_website_by_id(
+    website_id: int,
+    service: WebsiteService = Depends(get_service),
+) -> None:
+    try:
+        await service.delete_by_id(website_id)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
+
+
+@router.delete("/by-domain/{dominio}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_website_by_domain(
+    dominio: str,
+    service: WebsiteService = Depends(get_service),
+) -> None:
+    try:
+        await service.delete_by_domain(dominio)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
