@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 class CategoryWebsiteCreate(BaseModel):
     nombre: str = Field(..., max_length=25)
-    peso: int = Field(..., ge=1, le=5)
+    peso: int
 
 
 class CategoryWebsiteResponse(CategoryWebsiteCreate):
