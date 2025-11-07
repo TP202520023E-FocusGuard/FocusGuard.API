@@ -10,8 +10,8 @@ from app.modules.users.models.user_model import UserModel
 
 class UserRepository:
 
-    def __init__(self, session: AsyncSession):
-        self.session = session
+    def __init__(self, db_session: AsyncSession):
+        self.session = db_session
 
     async def create(self, user: UserModel) -> UserModel:
         try:

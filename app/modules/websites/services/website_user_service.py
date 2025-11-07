@@ -1,7 +1,8 @@
 from app.core.exceptions import NotFoundException
 
-from ..implementation.website_repository import WebsiteRepository
+from app.modules.users.implementation.user_repository import UserRepository
 from app.modules.categories.implementation.category_website_repository import CategoryWebsiteRepository
+from ..implementation.website_repository import WebsiteRepository
 
 from ..implementation.website_user_repository import WebsiteUserRepository
 from ..schemas.website_user_schema import (WebsiteUserCreate, WebsiteUserUpdate, WebsiteUserResponse)
@@ -11,14 +12,20 @@ class WebsiteUserService:
     def __init__(
             self,
             repo: WebsiteUserRepository,
+            user_repo: UserRepository,
             website_repo: WebsiteRepository,
             category_repo: CategoryWebsiteRepository,
     ) -> None:
         self.repo = repo
+        self.user_repo = user_repo
         self.website_repo = website_repo
         self.category_repo = category_repo
 
     async def create(self, data: WebsiteUserCreate) -> WebsiteUserResponse:
+        user = await self.user_repo.get_by_id(data.id_usuarios)
+        if user is None:
+            raise NotFoundException("El ID de usuario proporcionado no existe.")
+
         website = await self.website_repo.get_by_id(data.id_sitios_web)
         if website is None:
             raise NotFoundException("El ID de sitio web proporcionado no existe.")

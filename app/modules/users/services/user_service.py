@@ -30,8 +30,8 @@ class UserService:
 
     pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
-    def __init__(self, session: AsyncSession):
-        self.repository = UserRepository(session)
+    def __init__(self, db_session: AsyncSession):
+        self.repository = UserRepository(db_session)
 
     async def create_user(self, user_create: UserCreate) -> UserResponse:
         existing_user = await self.repository.get_by_email(user_create.correo)

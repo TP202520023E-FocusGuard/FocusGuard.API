@@ -36,13 +36,13 @@ app.add_middleware(
 # Include routers
 # app.include_router(categories_router, prefix="/api/v1")
 # app.include_router(configuration_router, prefix="/api/v1")
+
+app.include_router(user_router, prefix="/api/v1")
+app.include_router(category_website_router, prefix="/api/v1")
+app.include_router(category_content_router, prefix="/api/v1")
 app.include_router(website_router, prefix="/api/v1")
 app.include_router(website_user_router, prefix="/api/v1")
 app.include_router(website_visited_router, prefix="/api/v1")
-app.include_router(category_website_router, prefix="/api/v1")
-app.include_router(category_content_router, prefix="/api/v1")
-app.include_router(user_router, prefix="/api/v1")
-
 
 @app.get("/")
 async def root():
