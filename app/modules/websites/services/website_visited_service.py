@@ -1,16 +1,34 @@
 from __future__ import annotations
-
+from app.core.exceptions import NotFoundException
 from datetime import datetime
 
+from app.modules.users.implementation.user_repository import UserRepository
+from ..implementation.website_user_repository import WebsiteUserRepository
 from ..implementation.website_visited_repository import WebsiteVisitedRepository
+
 from ..schemas.website_visited_schema import (WebsiteVisitedCreate, WebsiteVisitedResponse)
 
 
 class WebsiteVisitedService:
-    def __init__(self, repo: WebsiteVisitedRepository) -> None:
+    def __init__(
+            self,
+            repo: WebsiteVisitedRepository,
+            user_repo: UserRepository,
+            website_user_repo: WebsiteUserRepository
+    ) -> None:
         self.repo = repo
+        self.user_repo = user_repo
+        self.website_user_repo = website_user_repo
 
     async def create(self, data: WebsiteVisitedCreate) -> WebsiteVisitedResponse:
+        user = await self.user_repo.get_by_id(data.id_usuarios)
+        if user is None:
+            raise NotFoundException("El ID de usuario proporcionado no existe.")
+
+        website_user = await self.website_user_repo.get_by_id(data.id_sitios_web_usuario)
+        if website_user is None:
+            raise NotFoundException("El ID de sitiosweb_usuario proporcionado no existe.")
+
         registro = await self.repo.create(data)
         return WebsiteVisitedResponse.model_validate(registro)
 

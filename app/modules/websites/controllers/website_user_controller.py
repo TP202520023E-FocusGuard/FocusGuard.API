@@ -4,8 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.exceptions import NotFoundException
 
-from ..implementation.website_repository import WebsiteRepository
+from app.modules.users.implementation.user_repository import UserRepository
 from app.modules.categories.implementation.category_website_repository import CategoryWebsiteRepository
+from ..implementation.website_repository import WebsiteRepository
 from ..implementation.website_user_repository import WebsiteUserRepository
 
 from ..schemas.website_user_schema import (WebsiteUserCreate, WebsiteUserUpdate, WebsiteUserResponse)
@@ -16,10 +17,12 @@ router = APIRouter(prefix="/website-users", tags=["website_users"])
 
 def get_service(db: AsyncSession = Depends(get_db)) -> WebsiteUserService:
     website_user_repo = WebsiteUserRepository(db_session=db)
+    user_repo = UserRepository(db_session=db)
     website_repo = WebsiteRepository(db_session=db)
     category_repo = CategoryWebsiteRepository(db_session=db)
     return WebsiteUserService(
         repo=website_user_repo,
+        user_repo=user_repo,
         website_repo=website_repo,
         category_repo=category_repo,
     )
@@ -41,6 +44,12 @@ async def create_website_user(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
         ) from exc
 
+@router.get("/{website_user_id}", response_model=WebsiteUserResponse)
+async def get_user_by_id(
+    website_user_id: int,
+    service: WebsiteUserService = Depends(get_service),
+) -> WebsiteUserResponse:
+    return await service.get_by_id(website_user_id)
 
 @router.get("/users/{user_id}", response_model=list[WebsiteUserResponse])
 async def get_by_user(
