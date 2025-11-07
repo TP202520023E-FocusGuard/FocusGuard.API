@@ -3,8 +3,8 @@ from app.core.exceptions import NotFoundException
 from app.modules.users.implementation.user_repository import UserRepository
 from app.modules.categories.implementation.category_website_repository import CategoryWebsiteRepository
 from ..implementation.website_repository import WebsiteRepository
-
 from ..implementation.website_user_repository import WebsiteUserRepository
+
 from ..schemas.website_user_schema import (WebsiteUserCreate, WebsiteUserUpdate, WebsiteUserResponse)
 
 
@@ -35,6 +35,14 @@ class WebsiteUserService:
             raise NotFoundException("El ID de categoría web proporcionado no existe.")
 
         registro = await self.repo.create(data)
+        return WebsiteUserResponse.model_validate(registro)
+
+    async def get_by_id(self, website_user_id: int) -> WebsiteUserResponse:
+        registro = await self.repo.get_by_id(website_user_id)
+
+        if registro is None:
+            raise ValueError("No se encontró el registro solicitado.")
+
         return WebsiteUserResponse.model_validate(registro)
 
     async def get_by_user(self, user_id: int) -> list[WebsiteUserResponse]:

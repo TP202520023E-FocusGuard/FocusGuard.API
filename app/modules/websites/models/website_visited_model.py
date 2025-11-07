@@ -9,8 +9,7 @@ class WebsiteVisitedModel(Base):
     __tablename__ = "sitios_web_visitados"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    #id_usuarios = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
-    id_usuarios = Column(Integer, nullable=False)
+    id_usuarios = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     id_sitios_web_usuario = Column(
         Integer,
         ForeignKey("sitios_web_usuario.id"),

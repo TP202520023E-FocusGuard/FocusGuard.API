@@ -2,12 +2,14 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-#from sqlalchemy.orm import Session
-#from ....database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
+from app.core.exceptions import NotFoundException
 
+from app.modules.users.implementation.user_repository import UserRepository
+from ..implementation.website_user_repository import WebsiteUserRepository
 from ..implementation.website_visited_repository import WebsiteVisitedRepository
+
 from ..schemas.website_visited_schema import WebsiteVisitedCreate, WebsiteVisitedResponse
 from ..services.website_visited_service import WebsiteVisitedService
 
@@ -16,7 +18,13 @@ router = APIRouter(prefix="/website-visited", tags=["website_visited"])
 
 def get_service(db: AsyncSession = Depends(get_db)) -> WebsiteVisitedService:
     repo = WebsiteVisitedRepository(db_session=db)
-    return WebsiteVisitedService(repo=repo)
+    user_repo = UserRepository(db_session=db)
+    website_user_repo = WebsiteUserRepository(db_session=db)
+    return WebsiteVisitedService(
+        repo=repo,
+        user_repo=user_repo,
+        website_user_repo=website_user_repo,
+    )
 
 
 @router.post("/", response_model=WebsiteVisitedResponse, status_code=status.HTTP_201_CREATED)
@@ -26,6 +34,10 @@ async def create_visit(
 ) -> WebsiteVisitedResponse:
     try:
         return await service.create(data)
+    except NotFoundException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)

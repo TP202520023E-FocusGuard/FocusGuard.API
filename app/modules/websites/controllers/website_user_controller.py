@@ -44,6 +44,12 @@ async def create_website_user(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
         ) from exc
 
+@router.get("/{website_user_id}", response_model=WebsiteUserResponse)
+async def get_user_by_id(
+    website_user_id: int,
+    service: WebsiteUserService = Depends(get_service),
+) -> WebsiteUserResponse:
+    return await service.get_by_id(website_user_id)
 
 @router.get("/users/{user_id}", response_model=list[WebsiteUserResponse])
 async def get_by_user(
