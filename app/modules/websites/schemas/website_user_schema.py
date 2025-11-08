@@ -11,8 +11,8 @@ class WebsiteUserBase(BaseModel):
 class WebsiteUserCreate(WebsiteUserBase):
     pass
 
-class WebsiteUserUpdate(WebsiteUserBase):
-    pass
+class WebsiteUserUpdate(BaseModel):
+    id_categorias_web: int
 
 class WebsiteUserResponse(WebsiteUserBase):
     id: int

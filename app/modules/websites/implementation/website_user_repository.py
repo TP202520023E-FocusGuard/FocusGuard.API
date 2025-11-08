@@ -91,9 +91,10 @@ class WebsiteUserRepository:
 
         if data.id_categorias_web is not None:
             registro.id_categorias_web = data.id_categorias_web
+            registro.origen = "custom"
 
-        if data.origen is not None:
-            registro.origen = data.origen
+        #if data.origen is not None:
+        #    registro.origen = data.origen
 
         try:
             self.db.add(registro)
