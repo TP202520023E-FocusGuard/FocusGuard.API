@@ -8,6 +8,9 @@ from app.modules.websites.controllers.website_visited_controller import router a
 from app.modules.categories.controllers.category_website_controller import router as category_website_router
 from app.modules.categories.controllers.category_content_controller import router as category_content_router
 from app.modules.users.controllers.user_controller import router as user_router
+from app.modules.contents.controllers.content_controller import router as content_router
+from app.modules.contents.controllers.content_user_controller import router as content_user_router
+from app.modules.contents.controllers.content_visited_controller import router as content_visited_router
 
 app = FastAPI(
     title="FocusGuard API",
@@ -43,6 +46,10 @@ app.include_router(category_content_router, prefix="/api/v1")
 app.include_router(website_router, prefix="/api/v1")
 app.include_router(website_user_router, prefix="/api/v1")
 app.include_router(website_visited_router, prefix="/api/v1")
+app.include_router(content_router, prefix="/api/v1")
+app.include_router(content_user_router, prefix="/api/v1")
+app.include_router(content_visited_router, prefix="/api/v1")
+
 
 @app.get("/")
 async def root():
