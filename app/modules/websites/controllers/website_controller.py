@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 
-from ..schemas.website_schema import WebsiteCreate, WebsiteResponse
+from ..schemas.website_schema import WebsiteCreate, WebsiteResponse, WebsiteGlobalResponse
 from ..services.website_service import WebsiteService
 from ..implementation.website_repository import WebsiteRepository
 
@@ -32,6 +32,12 @@ async def get_all_websites(
     service: WebsiteService = Depends(get_service),
 ) -> list[WebsiteResponse]:
     return await service.get_websites()
+
+@router.get("/global", response_model=list[WebsiteGlobalResponse])
+async def get_all_websites_global(
+    service: WebsiteService = Depends(get_service),
+) -> list[WebsiteGlobalResponse]:
+    return await service.get_websites_global()
 
 @router.get("/{website_id}", response_model=WebsiteResponse)
 async def get_website_by_id(

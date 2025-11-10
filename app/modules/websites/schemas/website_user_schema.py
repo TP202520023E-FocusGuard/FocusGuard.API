@@ -21,3 +21,8 @@ class WebsiteUserResponse(WebsiteUserBase):
 
     class Config:
         from_attributes = True
+
+class WebsiteUserListResponse(BaseModel):
+    id: int
+    dominio: str
+    categoria: str

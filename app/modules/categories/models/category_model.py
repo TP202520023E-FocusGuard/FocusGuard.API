@@ -28,3 +28,13 @@ class CategoryUserModel(Base):
     categoria_base: Mapped["CategoryBaseModel"] = relationship(
         "CategoryBaseModel", back_populates="categorias_usuario"
     )
+
+class ChangeCategoryModel(Base):
+    __tablename__ = "Cambios_Categoria"
+    
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id_usuarios: Mapped[int] = mapped_column(Integer, nullable=False)
+    id_sitios_web_usuario: Mapped[int] = mapped_column(Integer, ForeignKey("sitios_web_usuario.id"), nullable=False)
+    id_categorias_web_anterior: Mapped[int] = mapped_column(Integer, ForeignKey("categorias_web.id"), nullable=False)
+    id_categorias_web_nuevo: Mapped[int] = mapped_column(Integer, ForeignKey("categorias_web.id"), nullable=False)
+    fecha_hora: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
