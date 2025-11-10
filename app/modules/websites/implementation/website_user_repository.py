@@ -1,10 +1,9 @@
 from __future__ import annotations
+from app.core.exceptions import DatabaseException, NotFoundException
 from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-
-#from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.website_user_model import WebsiteUserModel
@@ -36,6 +35,15 @@ class WebsiteUserRepository:
         except SQLAlchemyError:
             await self.db.rollback()
             raise
+
+    async def get_by_id(self, website_user_id: int) -> Optional[WebsiteUserModel]:
+        try:
+            result = await self.db.execute(
+                select(WebsiteUserModel).where(WebsiteUserModel.id == website_user_id)
+            )
+            return result.scalar_one_or_none()
+        except Exception as exc:  # pragma: no cover
+            raise DatabaseException(f"Error fetching user by id: {exc}") from exc
 
     async def get_by_user(self, user_id: int) -> list[WebsiteUserModel]:
 
@@ -83,9 +91,10 @@ class WebsiteUserRepository:
 
         if data.id_categorias_web is not None:
             registro.id_categorias_web = data.id_categorias_web
+            registro.origen = "custom"
 
-        if data.origen is not None:
-            registro.origen = data.origen
+        #if data.origen is not None:
+        #    registro.origen = data.origen
 
         try:
             self.db.add(registro)
