@@ -100,3 +100,17 @@ async def update_by_user_and_website(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
         ) from exc
+
+@router.get("/website-with-category/user/{user_id}")       
+async def get_website_with_category(
+    user_id: int,
+    service: WebsiteUserService = Depends(get_service),
+):
+    try:
+        registros = await service.get_user_website_list(user_id)
+        return registros
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error getting website with category: {str(e)}"
+        )
