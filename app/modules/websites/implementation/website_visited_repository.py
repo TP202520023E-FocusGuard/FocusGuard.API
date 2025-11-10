@@ -66,6 +66,21 @@ class WebsiteVisitedRepository:
         registros = (await self.db.scalars(stmt)).all()
         return list(registros)
 
+    async def update_exit_time(
+            self,
+            registro: WebsiteVisitedModel,
+            fecha_hora_salida: datetime,
+    ) -> WebsiteVisitedModel:
+        registro.fecha_hora_salida = fecha_hora_salida
+
+        try:
+            await self.db.commit()
+            await self.db.refresh(registro)
+            return registro
+        except SQLAlchemyError:
+            await self.db.rollback()
+            raise
+
     async def delete_by_id(self, visit_id: int) -> bool:
         registro = await self.get_by_id(visit_id)
 

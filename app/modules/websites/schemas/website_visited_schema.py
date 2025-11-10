@@ -15,10 +15,12 @@ class WebsiteVisitedCreate(WebsiteVisitedBase):
     pass
 
 
+class WebsiteVisitedUpdate(BaseModel):
+    fecha_hora_salida: datetime
+
+
 class WebsiteVisitedResponse(WebsiteVisitedBase):
-    id_sitios_web_usuario: int
-    fecha_hora_ingreso: datetime
-    fecha_hora_salida: Optional[datetime] = None
+    id: int
 
     class Config:
         from_attributes = True

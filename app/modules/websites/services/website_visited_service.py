@@ -1,12 +1,12 @@
 from __future__ import annotations
 from app.core.exceptions import NotFoundException
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.modules.users.implementation.user_repository import UserRepository
 from ..implementation.website_user_repository import WebsiteUserRepository
 from ..implementation.website_visited_repository import WebsiteVisitedRepository
 
-from ..schemas.website_visited_schema import (WebsiteVisitedCreate, WebsiteVisitedResponse)
+from ..schemas.website_visited_schema import (WebsiteVisitedCreate, WebsiteVisitedUpdate, WebsiteVisitedResponse)
 
 
 class WebsiteVisitedService:
@@ -55,6 +55,34 @@ class WebsiteVisitedService:
 
         registros = await self.repo.get_by_user_and_interval(user_id, start, end)
         return [WebsiteVisitedResponse.model_validate(item) for item in registros]
+
+    async def update_exit_time(
+        self,
+        visit_id: int,
+        data: WebsiteVisitedUpdate
+    ) -> WebsiteVisitedResponse:
+        registro = await self.repo.get_by_id(visit_id)
+
+        if registro is None:
+            raise NotFoundException("No se encontró el registro solicitado.")
+
+        fecha_ingreso_naive = registro.fecha_hora_ingreso
+
+        # 1. Verificar si es naive y forzar a UTC (timezone.utc)
+        if fecha_ingreso_naive.tzinfo is None:
+            fecha_ingreso_aware = fecha_ingreso_naive.replace(tzinfo=timezone.utc)
+        else:
+            fecha_ingreso_aware = fecha_ingreso_naive
+
+        if data.fecha_hora_salida < fecha_ingreso_aware:
+            raise ValueError(
+                "La fecha de salida no puede ser anterior a la fecha de ingreso."
+            )
+
+        actualizado = await self.repo.update_exit_time(
+            registro, data.fecha_hora_salida
+        )
+        return WebsiteVisitedResponse.model_validate(actualizado)
 
     async def delete_by_id(self, visit_id: int) -> None:
         eliminado = await self.repo.delete_by_id(visit_id)
