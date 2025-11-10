@@ -1,4 +1,4 @@
-from ..schemas.website_schema import WebsiteCreate, WebsiteResponse
+from ..schemas.website_schema import WebsiteCreate, WebsiteResponse, WebsiteGlobalResponse
 from ..implementation.website_repository import WebsiteRepository
 
 
@@ -14,6 +14,10 @@ class WebsiteService:
     async def get_websites(self) -> list[WebsiteResponse]:
         registros = await self.repo.get_all()
         return [WebsiteResponse.model_validate(item) for item in registros]
+
+    async def get_websites_global(self) -> list[WebsiteGlobalResponse]:
+        registros = await self.repo.get_all_global()
+        return [WebsiteGlobalResponse.model_validate(item) for item in registros]
 
     async def get_by_id(self, website_id: int) -> WebsiteResponse:
         registro = await self.repo.get_by_id(website_id)
