@@ -8,6 +8,11 @@ class WebsiteService:
         self.repo = repo
 
     async def create_website(self, website_data: WebsiteCreate) -> WebsiteResponse:
+        existed_website = await self.repo.get_by_domain(website_data.dominio)
+
+        if existed_website is not None:
+            return WebsiteResponse.model_validate(existed_website)
+
         modelo_bd = await self.repo.create(website_data)
         return WebsiteResponse.model_validate(modelo_bd)
 

@@ -22,6 +22,11 @@ class WebsiteUserService:
         self.category_repo = category_repo
 
     async def create(self, data: WebsiteUserCreate) -> WebsiteUserResponse:
+        existed_website_user = await self.repo.get_by_user_and_website(data.id_usuarios, data.id_sitios_web)
+
+        if existed_website_user is not None:
+            return WebsiteUserResponse.model_validate(existed_website_user)
+
         user = await self.user_repo.get_by_id(data.id_usuarios)
         if user is None:
             raise NotFoundException("El ID de usuario proporcionado no existe.")
