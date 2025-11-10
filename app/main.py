@@ -7,6 +7,7 @@ from app.modules.websites.controllers.website_user_controller import router as w
 from app.modules.websites.controllers.website_visited_controller import router as website_visited_router
 from app.modules.categories.controllers.category_website_controller import router as category_website_router
 from app.modules.categories.controllers.category_content_controller import router as category_content_router
+from app.modules.categories.controllers.category_controller import router as change_category_router
 from app.modules.users.controllers.user_controller import router as user_router
 from app.modules.contents.controllers.content_controller import router as content_router
 from app.modules.contents.controllers.content_user_controller import router as content_user_router
@@ -42,6 +43,7 @@ app.add_middleware(
 
 app.include_router(user_router, prefix="/api/v1")
 app.include_router(category_website_router, prefix="/api/v1")
+app.include_router(change_category_router, prefix="/api/v1")
 app.include_router(category_content_router, prefix="/api/v1")
 app.include_router(website_router, prefix="/api/v1")
 app.include_router(website_user_router, prefix="/api/v1")
