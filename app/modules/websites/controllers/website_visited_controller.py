@@ -10,7 +10,7 @@ from app.modules.users.implementation.user_repository import UserRepository
 from ..implementation.website_user_repository import WebsiteUserRepository
 from ..implementation.website_visited_repository import WebsiteVisitedRepository
 
-from ..schemas.website_visited_schema import WebsiteVisitedCreate, WebsiteVisitedResponse
+from ..schemas.website_visited_schema import WebsiteVisitedCreate, WebsiteVisitedUpdate, WebsiteVisitedResponse
 from ..services.website_visited_service import WebsiteVisitedService
 
 router = APIRouter(prefix="/website-visited", tags=["website_visited"])
@@ -77,6 +77,24 @@ async def get_visits_by_user_and_interval(
 ) -> list[WebsiteVisitedResponse]:
     try:
         return await service.get_by_user_and_interval(user_id, start, end)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
+        ) from exc
+
+
+@router.patch("/{visit_id}", response_model=WebsiteVisitedResponse)
+async def update_exit_time(
+    visit_id: int,
+    data: WebsiteVisitedUpdate,
+    service: WebsiteVisitedService = Depends(get_service),
+) -> WebsiteVisitedResponse:
+    try:
+        return await service.update_exit_time(visit_id, data)
+    except NotFoundException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
