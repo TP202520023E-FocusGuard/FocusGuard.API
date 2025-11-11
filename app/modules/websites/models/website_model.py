@@ -1,11 +1,17 @@
-from sqlalchemy import Column, Integer, String, DECIMAL, TIMESTAMP, func
+from sqlalchemy import Column, Integer, String, UniqueConstraint, DECIMAL, TIMESTAMP, func
 from app.core.database import Base
 
 class WebsiteModel(Base):
     __tablename__ = 'sitios_web'
+    __table_args__ = (
+        UniqueConstraint(
+            "dominio",
+            name="UK_sitios_web_dominio",
+        ),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    dominio = Column(String(50), unique=True, nullable=False)
+    dominio = Column(String(50), nullable=False)
 
 
 class WebsiteglobalModel(Base):

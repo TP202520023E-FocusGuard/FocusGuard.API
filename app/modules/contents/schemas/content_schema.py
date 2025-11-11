@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 
 
 class ContentBase(BaseModel):
-    titulo: str | None = Field(default=None, max_length=255)
+    titulo: str = Field(..., max_length=255)
     descripcion: str | None = None
     twitter_cards: str | None = None
 

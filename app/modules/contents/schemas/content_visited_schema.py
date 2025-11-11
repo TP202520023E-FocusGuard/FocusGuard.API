@@ -14,6 +14,8 @@ class ContentVisitedBase(BaseModel):
 class ContentVisitedCreate(ContentVisitedBase):
     pass
 
+class ContentVisitedUpdate(BaseModel):
+    fecha_hora_salida: datetime
 
 class ContentVisitedResponse(ContentVisitedBase):
     id: int
