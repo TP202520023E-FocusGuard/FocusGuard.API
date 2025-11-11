@@ -12,6 +12,8 @@ from app.modules.users.controllers.user_controller import router as user_router
 from app.modules.contents.controllers.content_controller import router as content_router
 from app.modules.contents.controllers.content_user_controller import router as content_user_router
 from app.modules.contents.controllers.content_visited_controller import router as content_visited_router
+from app.modules.goals.controllers.goal_controller import router as goal_router
+from app.modules.objectives.controllers.weekly_goal_controller import router as weekly_goal_router
 
 app = FastAPI(
     title="FocusGuard API",
@@ -41,6 +43,8 @@ app.add_middleware(
 # app.include_router(categories_router, prefix="/api/v1")
 # app.include_router(configuration_router, prefix="/api/v1")
 
+app.include_router(goal_router, prefix="/api/v1")
+app.include_router(weekly_goal_router, prefix="/api/v1")
 app.include_router(user_router, prefix="/api/v1")
 app.include_router(category_website_router, prefix="/api/v1")
 app.include_router(change_category_router, prefix="/api/v1")
@@ -51,6 +55,7 @@ app.include_router(website_visited_router, prefix="/api/v1")
 app.include_router(content_router, prefix="/api/v1")
 app.include_router(content_user_router, prefix="/api/v1")
 app.include_router(content_visited_router, prefix="/api/v1")
+
 
 
 @app.get("/")
