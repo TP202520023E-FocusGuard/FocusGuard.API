@@ -4,8 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models.website_model import WebsiteModel
-from ..schemas.website_schema import WebsiteCreate
+from ..models.website_model import WebsiteModel, WebsiteglobalModel
+from ..schemas.website_schema import WebsiteCreate, WebsiteGlobalResponse
 
 class WebsiteRepository:
 
@@ -31,6 +31,10 @@ class WebsiteRepository:
 
     async def get_all(self) -> list[WebsiteModel]:
         registros = await self.db.scalars(select(WebsiteModel))
+        return list(registros.all())
+
+    async def get_all_global(self) -> list[WebsiteglobalModel]:
+        registros = await self.db.scalars(select(WebsiteglobalModel))
         return list(registros.all())
 
     async def get_by_id(self, website_id: int) -> Optional[WebsiteModel]:
