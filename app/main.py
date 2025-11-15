@@ -14,6 +14,7 @@ from app.modules.contents.controllers.content_user_controller import router as c
 from app.modules.contents.controllers.content_visited_controller import router as content_visited_router
 from app.modules.goals.controllers.goal_controller import router as goal_router
 from app.modules.objectives.controllers.weekly_goal_controller import router as weekly_goal_router
+from app.modules.objectives.controllers.daily_progress_controller import router as daily_progress_router
 
 app = FastAPI(
     title="FocusGuard API",
@@ -27,13 +28,13 @@ app = FastAPI(
 
 #origins = [
 #    "http://localhost",
-#    "http://localhost:8000",
-#    EXTENSION_ORIGIN,  # ID de la extensión
+#    "http://localhost:8000"
+#   #EXTENSION_ORIGIN,  # ID de la extensión
 #]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Cualquier origen
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -55,8 +56,8 @@ app.include_router(website_visited_router, prefix="/api/v1")
 app.include_router(content_router, prefix="/api/v1")
 app.include_router(content_user_router, prefix="/api/v1")
 app.include_router(content_visited_router, prefix="/api/v1")
-
-
+app.include_router(weekly_goal_router, prefix="/api/v1")
+app.include_router(daily_progress_router, prefix="/api/v1")
 
 @app.get("/")
 async def root():
