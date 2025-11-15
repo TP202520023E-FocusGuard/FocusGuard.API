@@ -15,3 +15,4 @@ class UserModel(Base):
     fecha_registro = Column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+    frase_seguridad_hash = Column(String(255), nullable=False)

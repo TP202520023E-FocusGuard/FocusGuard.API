@@ -1,5 +1,4 @@
 from typing import Optional
-
 from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,7 +21,7 @@ class UserRepository:
         except IntegrityError as exc:
             await self.session.rollback()
             raise DatabaseException(f"Integrity error creating user: {exc}") from exc
-        except Exception as exc:  # pragma: no cover - unexpected errors
+        except Exception as exc:
             await self.session.rollback()
             raise DatabaseException(f"Unexpected error creating user: {exc}") from exc
 
@@ -30,7 +29,7 @@ class UserRepository:
         try:
             result = await self.session.execute(select(UserModel))
             return list(result.scalars().all())
-        except Exception as exc:  # pragma: no cover
+        except Exception as exc:
             raise DatabaseException(f"Error fetching users: {exc}") from exc
 
     async def get_by_id(self, user_id: int) -> Optional[UserModel]:
@@ -39,7 +38,7 @@ class UserRepository:
                 select(UserModel).where(UserModel.id == user_id)
             )
             return result.scalar_one_or_none()
-        except Exception as exc:  # pragma: no cover
+        except Exception as exc:
             raise DatabaseException(f"Error fetching user by id: {exc}") from exc
 
     async def get_by_email(self, email: str) -> Optional[UserModel]:
@@ -48,7 +47,7 @@ class UserRepository:
                 select(UserModel).where(UserModel.correo == email)
             )
             return result.scalar_one_or_none()
-        except Exception as exc:  # pragma: no cover
+        except Exception as exc:
             raise DatabaseException(f"Error fetching user by email: {exc}") from exc
 
     async def update(self, user: UserModel) -> UserModel:
@@ -59,7 +58,7 @@ class UserRepository:
         except IntegrityError as exc:
             await self.session.rollback()
             raise DatabaseException(f"Integrity error updating user: {exc}") from exc
-        except Exception as exc:  # pragma: no cover
+        except Exception as exc:
             await self.session.rollback()
             raise DatabaseException(f"Unexpected error updating user: {exc}") from exc
 
@@ -73,6 +72,6 @@ class UserRepository:
             await self.session.commit()
         except NotFoundException:
             raise
-        except Exception as exc:  # pragma: no cover
+        except Exception as exc:
             await self.session.rollback()
             raise DatabaseException(f"Error deleting user: {exc}") from exc
