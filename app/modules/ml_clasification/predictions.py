@@ -1,5 +1,14 @@
+from pathlib import Path
+
 from joblib import load
-from preprocessing import preprocesar_texto
+
+from .preprocessing import preprocesar_texto
+
+MODEL_PATH = Path(__file__).resolve().parent / "models" / "modelo_tfidf_logreg.joblib"
+
+
+def cargar_modelo_clasificacion():
+    return load(MODEL_PATH)
 
 
 def obtener_predicciones(modelo_pipe, texto):

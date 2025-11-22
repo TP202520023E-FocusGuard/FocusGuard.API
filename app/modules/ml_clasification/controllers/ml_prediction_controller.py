@@ -2,10 +2,11 @@ from fastapi import APIRouter, HTTPException, status
 
 from ..schemas.ml_prediction_schema import ModelClassificationInput, ModelClassificationOutput
 from joblib import load
-from ..predictions import obtener_predicciones
+from ..predictions import cargar_modelo_clasificacion, obtener_predicciones
 
 router = APIRouter(prefix="/ml_classification", tags=["ml_classification"])
-modelo_pipe = load('./models/modelo_tfidf_logreg.joblib')
+#modelo_pipe = load('../models/modelo_tfidf_logreg.joblib')
+modelo_pipe = cargar_modelo_clasificacion()
 
 @router.post("/", response_model=ModelClassificationOutput, status_code=status.HTTP_201_CREATED)
 async def predict_content(
