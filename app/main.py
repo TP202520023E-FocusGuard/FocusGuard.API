@@ -12,6 +12,7 @@ from app.modules.users.controllers.user_controller import router as user_router
 from app.modules.contents.controllers.content_controller import router as content_router
 from app.modules.contents.controllers.content_user_controller import router as content_user_router
 from app.modules.contents.controllers.content_visited_controller import router as content_visited_router
+from app.modules.ml_clasification.controllers.ml_prediction_controller import router as ml_prediction_controller
 
 app = FastAPI(
     title="FocusGuard API",
@@ -51,6 +52,7 @@ app.include_router(website_visited_router, prefix="/api/v1")
 app.include_router(content_router, prefix="/api/v1")
 app.include_router(content_user_router, prefix="/api/v1")
 app.include_router(content_visited_router, prefix="/api/v1")
+app.include_router(ml_prediction_controller, prefix="/api/v1")
 
 
 @app.get("/")
