@@ -83,16 +83,16 @@ class WebsiteUserService:
         data: WebsiteUserUpdate,
     ) -> WebsiteUserResponse:
 
-        # 1️⃣ Validar que la categoría existe si se proporciona
+        # Validar que la categoría existe si se proporciona
         if data.id_categorias_web is not None:
             category = await self.category_repo.get_by_id(data.id_categorias_web)
             if category is None:
                 raise NotFoundException("El ID de categoría web proporcionado no existe.")
 
-        # 2️⃣ Verificar si el website existe en la tabla global
+        # Verificar si el website existe en la tabla global
         website = await self.website_repo.get_website_global_by_id(website_id)
 
-        # 3️⃣ Buscar si ya existe una relación usuario-website
+        # Buscar si ya existe una relación usuario-website
         current_website_user = await self.repo.get_by_user_and_website(user_id, website_id)
         
         old_category = None
@@ -110,15 +110,12 @@ class WebsiteUserService:
             current_website_user = await self.repo.create(website_user_data)
             old_category = website.id_categorias_web  # Categoría original del website global
 
-        # 4️⃣ Si es la misma categoría → no registrar cambio
         new_category = data.id_categorias_web
         if old_category == new_category:
             return WebsiteUserResponse.model_validate(current_website_user)
 
-        # 5️⃣ Actualizar la categoría en WebsiteUser
         updated = await self.repo.update_by_user_and_website(user_id, website_id, data)
 
-        # 6️⃣ Registrar cambio si el servicio está disponible
         if self.category_change_repo is not None:
             cambio_data = {
                 "id_usuarios": user_id,

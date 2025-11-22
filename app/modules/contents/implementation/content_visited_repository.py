@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import select
@@ -64,21 +63,6 @@ class ContentVisitedRepository:
         )
         registros = (await self.db.scalars(stmt)).all()
         return list(registros)
-
-    async def update_exit_time(
-            self,
-            registro: ContentVisitedModel,
-            fecha_hora_salida: datetime,
-    ) -> ContentVisitedModel:
-        registro.fecha_hora_salida = fecha_hora_salida
-
-        try:
-            await self.db.commit()
-            await self.db.refresh(registro)
-            return registro
-        except SQLAlchemyError:
-            await self.db.rollback()
-            raise
 
     async def delete_by_id(self, record_id: int) -> bool:
         registro = await self.get_by_id(record_id)

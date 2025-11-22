@@ -13,8 +13,8 @@ class WebsiteService:
         if existed_website is not None:
             return WebsiteResponse.model_validate(existed_website)
 
-        registro = await self.repo.create(website_data)
-        return WebsiteResponse.model_validate(registro)
+        modelo_bd = await self.repo.create(website_data)
+        return WebsiteResponse.model_validate(modelo_bd)
 
     async def get_websites(self) -> list[WebsiteResponse]:
         registros = await self.repo.get_all()

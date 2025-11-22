@@ -1,4 +1,3 @@
-# controllers/prediction_controller.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
@@ -15,7 +14,6 @@ from ..services.ml_service import MLService
 
 router = APIRouter(prefix="/ml", tags=["Machine Learning"])
 
-# Instanciamos los servicios
 ml_service = MLService()
 prediction_service = PredictionService()
 
@@ -26,7 +24,7 @@ async def predict_sequence(
     db: AsyncSession = Depends(get_db)
 ):
     """
-    🔹 Endpoint principal que:
+    Endpoint principal que:
       1. Recibe la secuencia de navegación.
       2. Llama al servicio ML para obtener la predicción.
       3. Guarda la predicción y su relación con los historiales.
@@ -34,10 +32,8 @@ async def predict_sequence(
     """
 
     try:
-        # 1️⃣ Llamamos al modelo ML
         ml_result: SequencePrediction = await ml_service.predict_sequence(request)
 
-        # 2️⃣ Estructuramos el registro para BD
         new_prediction = PredictionCreate(
             user_id=request.user_id,
             model_name="sequence_intervention",
@@ -46,10 +42,8 @@ async def predict_sequence(
             historiales_ids=[h.id_historial for h in request.navigation_sessions]
         )
 
-        # 3️⃣ Guardamos en BD
         created_prediction = await prediction_service.create_prediction(db, new_prediction)
 
-        # 4️⃣ Devolvemos al frontend
         return created_prediction
 
     except Exception as e:

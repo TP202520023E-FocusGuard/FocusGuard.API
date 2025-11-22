@@ -8,7 +8,7 @@ from app.modules.users.implementation.user_repository import UserRepository
 from ..implementation.content_user_repository import ContentUserRepository
 from ..implementation.content_visited_repository import ContentVisitedRepository
 
-from ..schemas.content_visited_schema import ContentVisitedCreate, ContentVisitedUpdate, ContentVisitedResponse
+from ..schemas.content_visited_schema import ContentVisitedCreate, ContentVisitedResponse
 from ..services.content_visited_service import ContentVisitedService
 
 router = APIRouter(prefix="/content-visited", tags=["content_visited"])
@@ -80,24 +80,6 @@ async def get_content_visited_by_user_and_content_user(
     service: ContentVisitedService = Depends(get_service),
 ) -> list[ContentVisitedResponse]:
     return await service.get_by_user_and_content_user(user_id, content_user_id)
-
-
-@router.patch("/{visit_id}", response_model=ContentVisitedResponse)
-async def update_exit_time(
-    visit_id: int,
-    data: ContentVisitedUpdate,
-    service: ContentVisitedService = Depends(get_service),
-) -> ContentVisitedResponse:
-    try:
-        return await service.update_exit_time(visit_id, data)
-    except NotFoundException as exc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
-        ) from exc
-    except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)
-        ) from exc
 
 
 @router.delete("/{record_id}", status_code=status.HTTP_204_NO_CONTENT)

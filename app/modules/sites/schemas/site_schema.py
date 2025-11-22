@@ -50,7 +50,7 @@ class NavigationHistoryUpdate(BaseModel):
 class CombinedSiteWithClassification(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
-    id_sitio: Optional[int] = None  # Solo para sitios base
+    id_sitio: Optional[int] = None 
     dominio: str
     nombre: str
     tipo_sitio: str  # 'base' o 'personal'
@@ -81,11 +81,8 @@ class UserClassificationCreate(BaseModel):
     id_clasificacion: int
 
 class SiteClassificationUpdate(BaseModel):
-    # Para sitios base
     site_id: Optional[int] = None
-    # Para sitios personales  
     dominio: Optional[str] = None
-    # Común
     id_clasificacion: int
     
     def validate_site_or_domain(self):

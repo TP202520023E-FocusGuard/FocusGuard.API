@@ -7,11 +7,6 @@ class ContentService:
         self.repo = repo
 
     async def create_content(self, content_data: ContentCreate) -> ContentResponse:
-        existed_content = await self.repo.get_by_title(content_data.titulo)
-
-        if existed_content is not None:
-            return ContentResponse.model_validate(existed_content)
-
         registro = await self.repo.create(content_data)
         return ContentResponse.model_validate(registro)
 
@@ -24,14 +19,6 @@ class ContentService:
 
         if registro is None:
             raise ValueError("No se encontró un contenido con el id especificado.")
-
-        return ContentResponse.model_validate(registro)
-
-    async def get_by_title(self, title: str) -> ContentResponse:
-        registro = await self.repo.get_by_title(title)
-
-        if registro is None:
-            raise ValueError("No se encontró el contenido con el título especificado.")
 
         return ContentResponse.model_validate(registro)
 

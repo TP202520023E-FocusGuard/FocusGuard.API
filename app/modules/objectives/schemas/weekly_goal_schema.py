@@ -2,7 +2,6 @@ from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime
 
-# Request Schemas
 class WeeklyGoalCreate(BaseModel):
     id_usuarios: int
     opcion_1: int  # 1: Más, 2: Menos
@@ -22,7 +21,6 @@ class WeeklyGoalUpdate(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-# Response Schema
 class WeeklyGoalResponse(BaseModel):
     id: int
     id_usuarios: int
