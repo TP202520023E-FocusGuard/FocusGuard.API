@@ -10,7 +10,6 @@ class CategoryBaseModel(Base):
     nombre: Mapped[str] = mapped_column(String(100), nullable=False)
     descripcion: Mapped[str] = mapped_column(Text, nullable=True)
     
-    # Relación con categorías de usuario
     categorias_usuario: Mapped[list["CategoryUserModel"]] = relationship(
         "CategoryUserModel", back_populates="categoria_base"
     )
@@ -24,7 +23,6 @@ class CategoryUserModel(Base):
     es_procrastinacion: Mapped[bool] = mapped_column(Boolean, default=False)
     fecha_actualizacion: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
     
-    # Relación con categoría base
     categoria_base: Mapped["CategoryBaseModel"] = relationship(
         "CategoryBaseModel", back_populates="categorias_usuario"
     )

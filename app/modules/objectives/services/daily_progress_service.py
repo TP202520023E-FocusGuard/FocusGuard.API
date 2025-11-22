@@ -7,7 +7,6 @@ class DailyProgressService:
     def __init__(self, repo: DailyProgressRepository):
         self.repo = repo
     
-    # MÉTODOS CRUD BÁSICOS
     async def get_all(self) -> List[DailyProgressResponse]:
         progress_records = await self.repo.get_all()
         return [DailyProgressResponse.model_validate(p) for p in progress_records]
@@ -63,24 +62,20 @@ class DailyProgressService:
         """
         Registra el progreso diario automáticamente calculando si se alcanzó el objetivo
         """
-        # Calcular si se alcanzó el objetivo
-        if weekly_goal.opcion_1 == 1:  # MÁS tiempo
+        if weekly_goal.opcion_1 == 1:
             es_alcanzado = tiempo_usado >= weekly_goal.tiempo
         else:  # MENOS tiempo  
             es_alcanzado = tiempo_usado <= weekly_goal.tiempo
         
-        # Verificar si ya existe registro para hoy
         today = datetime.now()
         existing_progress = await self.repo.get_today_progress(goal_id, today)
         
         if existing_progress:
-            # Actualizar registro existente
             return await self.update(existing_progress.id, DailyProgressUpdate(
                 tiempo_alcanzado=tiempo_usado,
                 es_alcanzado=es_alcanzado
             ))
         else:
-            # Crear nuevo registro
             return await self.create(DailyProgressCreate(
                 id_objetivos_semanales=goal_id,
                 tiempo_alcanzado=tiempo_usado,

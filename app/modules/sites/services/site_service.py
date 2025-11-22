@@ -15,7 +15,6 @@ class SiteService:
     def __init__(self, session: AsyncSession):
         self.repository = SiteRepository(session)
 
-    # LISTA PRINCIPAL - Sitios curados + personales
     async def get_combined_sites_with_classification(self, user_id: int) -> List[CombinedSiteWithClassification]:
         """Obtiene sitios CURADOS + PERSONALES con clasificaciones"""
         try:
@@ -61,7 +60,6 @@ class SiteService:
         except Exception as e:
             raise BusinessException(f"Error getting combined sites: {str(e)}")
 
-    # CLASIFICACIONES DISPONIBLES
     async def get_all_classifications(self) -> List[ClassificationBase]:
         """Obtiene todas las clasificaciones disponibles"""
         try:
@@ -69,19 +67,16 @@ class SiteService:
             return [ClassificationBase.model_validate(classification) for classification in classifications]
         except Exception as e:
             raise BusinessException(f"Error getting classifications: {str(e)}")
-
-    # CLASIFICACIÓN UNIFICADA
+        
     async def classify_site_unified(self, user_id: int, classification_data: UnifiedClassificationUpdate) -> ClassificationResponse:
         """Clasifica sitios base o personales automáticamente"""
         try:
-            # Validar que la clasificación existe
             classifications = await self.repository.get_all_classifications()
             classification_ids = [c.id_clasificacion for c in classifications]
             if classification_data.id_clasificacion not in classification_ids:
                 raise ValidationException(f"Classification with id {classification_data.id_clasificacion} does not exist")
             
             if classification_data.id_sitio:
-                # 🏷️ Es sitio BASE
                 site = await self.repository.get_site_base_by_id(classification_data.id_sitio)
                 if not site:
                     raise NotFoundException(f"Site with id {classification_data.id_sitio} does not exist")
@@ -100,7 +95,6 @@ class SiteService:
                 )
                 
             elif classification_data.dominio:
-                # 🌟 Es sitio PERSONAL
                 await self.repository.update_user_site_classification(
                     user_id, 
                     classification_data.dominio, 
@@ -119,25 +113,20 @@ class SiteService:
         except Exception as e:
             raise BusinessException(f"Error classifying site: {str(e)}")
 
-    # HISTORIAL DE NAVEGACIÓN
     async def start_navigation_session(self, user_id: int, history_data: NavigationHistoryCreate) -> int:
         """Inicia una sesión de navegación"""
         try:
             dominio = history_data.dominio
             
-            # 1. Verificar si es sitio CURADO (Sitios_Base)
             site_base = await self.repository.get_site_base_by_domain(dominio)
             
             if site_base:
-                # Sitio CURADO - usar Clasificacion_Usuario para preferencia personal
                 user_classification = await self.repository.get_user_classification(user_id, site_base.id_sitio)
                 classification_id = user_classification.id_clasificacion if user_classification else site_base.id_clasificacion
             else:
-                # 2. Sitio NUEVO - usar Sitios_Usuario (personal, no compartido)
                 user_site = await self.repository.get_or_create_user_site(user_id, dominio)
                 classification_id = user_site.id_clasificacion
-            
-            # 3. Crear historial de navegación
+
             history = await self.repository.create_navigation_history(history_data, user_id, classification_id)
             return history.id_historial
             
@@ -164,14 +153,12 @@ class SiteService:
         Actualiza la clasificación de un sitio (base o personal)
         """
         try:
-            # Validar que la clasificación existe
             classifications = await self.repository.get_all_classifications()
             classification_ids = [c.id_clasificacion for c in classifications]
             if classification_data.id_clasificacion not in classification_ids:
                 raise ValidationException(f"Classification with id {classification_data.id_clasificacion} does not exist")
             
             if classification_data.site_id:
-                # 🏷️ Es sitio BASE
                 site = await self.repository.get_site_base_by_id(classification_data.site_id)
                 if not site:
                     raise NotFoundException(f"Site with id {classification_data.site_id} does not exist")
@@ -190,7 +177,6 @@ class SiteService:
                 )
                 
             elif classification_data.dominio:
-                # 🌟 Es sitio PERSONAL
                 await self.repository.update_user_site_classification(
                     user_id, 
                     classification_data.dominio, 

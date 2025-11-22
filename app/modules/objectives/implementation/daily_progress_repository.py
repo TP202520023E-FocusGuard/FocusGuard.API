@@ -42,7 +42,6 @@ class DailyProgressRepository:
             return True
         return False
 
-    # NUEVOS MÉTODOS PRÁCTICOS
     async def get_by_weekly_goal(self, goal_id: int) -> List[DailyProgressModel]:
         stmt = select(DailyProgressModel).where(
             DailyProgressModel.id_objetivos_semanales == goal_id
