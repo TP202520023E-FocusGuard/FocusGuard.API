@@ -8,7 +8,7 @@ class WebsiteUserModel(Base):
         UniqueConstraint(
             "id_usuarios",
             "id_sitios_web",
-            name="unique1_sitios_web_usuarios",
+            name="UK_sitios_web_usuario_composite",
         ),
     )
 
