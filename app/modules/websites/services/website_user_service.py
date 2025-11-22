@@ -83,16 +83,16 @@ class WebsiteUserService:
         data: WebsiteUserUpdate,
     ) -> WebsiteUserResponse:
 
-        # 1️⃣ Validar que la categoría existe si se proporciona
+        # Validar que la categoría existe si se proporciona
         if data.id_categorias_web is not None:
             category = await self.category_repo.get_by_id(data.id_categorias_web)
             if category is None:
                 raise NotFoundException("El ID de categoría web proporcionado no existe.")
 
-        # 2️⃣ Verificar si el website existe en la tabla global
+        # Verificar si el website existe en la tabla global
         website = await self.website_repo.get_website_global_by_id(website_id)
 
-        # 3️⃣ Buscar si ya existe una relación usuario-website
+        # Buscar si ya existe una relación usuario-website
         current_website_user = await self.repo.get_by_user_and_website(user_id, website_id)
         
         old_category = None
