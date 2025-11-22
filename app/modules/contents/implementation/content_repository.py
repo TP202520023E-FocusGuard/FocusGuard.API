@@ -1,7 +1,7 @@
 from typing import Optional
 
 from sqlalchemy import select
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.content_model import ContentModel
@@ -24,6 +24,9 @@ class ContentRepository:
             await self.db.commit()
             await self.db.refresh(nuevo_contenido)
             return nuevo_contenido
+        except IntegrityError as exc:
+            await self.db.rollback()
+            raise ValueError("El titulo del contenido ya se encuentra registrado.") from exc
         except SQLAlchemyError:
             await self.db.rollback()
             raise
@@ -34,6 +37,10 @@ class ContentRepository:
 
     async def get_by_id(self, content_id: int) -> Optional[ContentModel]:
         return await self.db.get(ContentModel, content_id)
+
+    async def get_by_title(self, title: str) -> Optional[ContentModel]:
+        stmt = select(ContentModel).where(ContentModel.titulo == title)
+        return (await self.db.scalars(stmt)).one_or_none()
 
     async def delete(self, registro: ContentModel) -> None:
         try:

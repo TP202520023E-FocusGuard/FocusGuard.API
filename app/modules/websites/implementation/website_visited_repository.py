@@ -5,7 +5,6 @@ from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
-#from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models.website_visited_model import WebsiteVisitedModel
