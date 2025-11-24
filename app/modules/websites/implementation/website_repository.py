@@ -37,6 +37,11 @@ class WebsiteRepository:
         registros = await self.db.scalars(select(WebsiteglobalModel))
         return list(registros.all())
 
+    async def get_website_global_by_id(self, website_id: int) -> Optional[WebsiteglobalModel]:
+        stmt = select(WebsiteglobalModel).where(WebsiteglobalModel.id == website_id)
+        result = await self.db.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def get_by_id(self, website_id: int) -> Optional[WebsiteModel]:
         return await self.db.get(WebsiteModel, website_id)
 

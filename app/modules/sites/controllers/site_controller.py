@@ -11,7 +11,6 @@ from app.core.exceptions import DatabaseException, BusinessException, Validation
 
 router = APIRouter(prefix="/sites", tags=["sites"])
 
-# Clasificaciones
 @router.get("/classifications", response_model=List[ClassificationBase])
 async def get_classifications(
     db: AsyncSession = Depends(get_db)
@@ -26,7 +25,7 @@ async def get_classifications(
             detail=f"Error getting classifications: {str(e)}"
         )
 
-# Historial de Navegación
+
 @router.post("/navigation/start")
 async def start_navigation_session(
     history_data: NavigationHistoryCreate,
@@ -57,21 +56,19 @@ async def end_navigation_session(
 ):
     """Finaliza una sesión de navegación y genera predicción ML"""
     try:
-        print(f"🔍 Iniciando end_navigation_session para history_id: {history_id}")
+        print(f"Iniciando end_navigation_session para history_id: {history_id}")
         
         service = SiteService(db)
-        print(f"🔍 SiteService creado exitosamente")
+        print(f"SiteService creado exitosamente")
         
         success = await service.end_navigation_session(history_id, update_data)
-        print(f"🔍 end_navigation_session completado: {success}")
+        print(f"end_navigation_session completado: {success}")
 
         if success:
             print(f"🔍 Llamando a ML Service...")
-            # ✅ IMPORTACIÓN DIFERIDA
             from app.modules.ml.services.ml_service import MLService
             ml_service = MLService(db)
             
-            # ✅ CORREGIDO: usar generate_and_store_prediction en lugar de generate_prediction
             prediction = await ml_service.generate_and_store_prediction(user_id=1)
             print(f"🔍 Predicción ML completada: {prediction is not None}")
 
@@ -87,7 +84,7 @@ async def end_navigation_session(
                     "predicted_duration": prediction.predicted_duration,
                     "risk_factors": prediction.risk_factors
                 }
-                print(f"🔍 Predicción incluida en respuesta")
+                print(f"Predicción incluida en respuesta")
 
             return response_data
         else:
@@ -119,7 +116,7 @@ async def get_combined_sites_with_classification(
 @router.put("/user/{user_id}/classification", response_model=ClassificationResponse)
 async def update_site_classification(
     user_id: int,
-    classification_data: SiteClassificationUpdate,  # ✅ Ahora viene del body
+    classification_data: SiteClassificationUpdate,
     db: AsyncSession = Depends(get_db)
 ):
     """

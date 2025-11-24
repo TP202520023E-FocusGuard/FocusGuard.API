@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, UTC
 from sqlalchemy import func
+import secrets
+from typing import Dict, Optional
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -20,6 +22,8 @@ from app.modules.users.schemas.user_schema import (
     UserLogin,
     UserResponse,
     UserUpdate,
+    PasswordResetRequest,
+    PasswordResetConfirm
 )
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 5
@@ -32,6 +36,8 @@ class UserService:
 
     def __init__(self, db_session: AsyncSession):
         self.repository = UserRepository(db_session)
+        self._reset_tokens: Dict[str, dict] = {}
+        self._pending_reset: Optional[str] = None
 
     async def create_user(self, user_create: UserCreate) -> UserResponse:
         existing_user = await self.repository.get_by_email(user_create.correo)
@@ -39,14 +45,15 @@ class UserService:
             raise BusinessException("A user with this email already exists")
 
         hashed_password = self._hash_password(user_create.password)
-        #raise BusinessException(f"Hasta aqui si llegamos, la contrasenia es {hashed_password}")
+        hashed_frase = self._hash_password(user_create.frase_seguridad)  # Nueva
         user = UserModel(
             correo=user_create.correo,
             contrasenia_hash=hashed_password,
             nombres=user_create.nombres,
             apellidos=user_create.apellidos,
             telefono=user_create.telefono,
-            fecha_registro=func.now()
+            fecha_registro=func.now(),
+            frase_seguridad_hash=hashed_frase  # Nueva
         )
         created_user = await self.repository.create(user)
         return UserResponse.model_validate(created_user)
@@ -124,10 +131,51 @@ class UserService:
             raise AuthenticationException("Invalid token") from exc
 
     def _hash_password(self, password: str) -> str:
-        password_bytes = password.encode('utf-8')
-        #raise BusinessException(f"la contrasenia es {password_bytes}")
-        return self.pwd_context.hash(password_bytes)
+        return self.pwd_context.hash(password.encode("utf-8"))
 
     def _verify_password(self, plain_password: str, hashed_password: str) -> bool:
-        plain_password_bytes = plain_password.encode('utf-8')
-        return self.pwd_context.verify(plain_password_bytes, hashed_password)
+        return self.pwd_context.verify(plain_password.encode("utf-8"), hashed_password)
+    
+    async def request_password_reset(self, reset_request: PasswordResetRequest) -> bool:
+        """
+        Valida email y frase de seguridad
+        Devuelve True si son correctos, False si no
+        """
+        # Buscar usuario por email
+        user = await self.repository.get_by_email(reset_request.correo)
+        if not user:
+            await self._security_delay()
+            return False
+
+        # Verificar frase de seguridad
+        if not self._verify_password(reset_request.frase_seguridad, user.frase_seguridad_hash):
+            await self._security_delay()
+            return False
+
+        # Guardar email válido en sesión para el paso 2
+        self._pending_reset = user.correo
+        return True
+
+    async def reset_password(self, reset_confirm: PasswordResetConfirm) -> None:
+        """
+        Restablece la contraseña para el email en sesión
+        """
+        if not self._pending_reset:
+            raise AuthenticationException("Solicitud de recuperación no encontrada")
+
+        # Buscar usuario por email de la sesión
+        user = await self.repository.get_by_email(self._pending_reset)
+        if not user:
+            raise NotFoundException("Usuario no encontrado")
+
+        # Actualizar contraseña
+        user.contrasenia_hash = self._hash_password(reset_confirm.new_password)
+        await self.repository.update(user)
+
+        # Limpiar sesión
+        self._pending_reset = None
+
+    async def _security_delay(self):
+        import asyncio
+        await asyncio.sleep(1.5)
+

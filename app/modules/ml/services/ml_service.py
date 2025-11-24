@@ -7,6 +7,6 @@ class MLService:
     
     async def generate_and_store_prediction(self, user_id: int):
         """
-        🔹 Fachada para generar y almacenar predicciones ML
+        Fachada para generar y almacenar predicciones ML
         """
         return await self.prediction_service.generate_and_store_prediction(user_id)

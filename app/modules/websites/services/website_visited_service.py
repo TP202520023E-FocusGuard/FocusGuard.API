@@ -68,7 +68,6 @@ class WebsiteVisitedService:
 
         fecha_ingreso_naive = registro.fecha_hora_ingreso
 
-        # 1. Verificar si es naive y forzar a UTC (timezone.utc)
         if fecha_ingreso_naive.tzinfo is None:
             fecha_ingreso_aware = fecha_ingreso_naive.replace(tzinfo=timezone.utc)
         else:

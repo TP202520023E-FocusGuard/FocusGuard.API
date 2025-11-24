@@ -15,12 +15,11 @@ class PredictionService:
 
     async def generate_and_store_prediction(self, user_id: int):
         """
-        🔹 Genera una predicción basada en los últimos 10 historiales del usuario
+        Genera una predicción basada en los últimos 10 historiales del usuario
         """
         try:
             print(f"🔍 Iniciando predicción para usuario {user_id}")
             
-            # 1️⃣ Obtener los últimos 10 historiales de navegación
             result = await self.session.execute(
                 select(NavigationHistoryModel)
                 .where(NavigationHistoryModel.id_usuario == user_id)
@@ -35,7 +34,6 @@ class PredictionService:
 
             print(f"📊 Encontrados {len(histories)} historiales")
 
-            # 2️⃣ Preparar payload en el formato EXACTO que espera el ML service
             historial = []
             historiales_ids = []
             
@@ -57,40 +55,30 @@ class PredictionService:
                 historial.append(session_data)
                 historiales_ids.append(h.id_historial)
 
-            # 3️⃣ Crear payload en el formato EXACTO del ML service
             payload = {
                 "id_usuario": user_id,  # ❗Entero, no string
                 "historial": historial  # ❗Se llama "historial", no "navigation_sessions"
             }
 
-            print(f"📤 Enviando {len(historial)} sesiones al ML...")
-            print("🔍 Payload completo:")
-            print(json.dumps(payload, indent=2, ensure_ascii=False, default=str))
-
-            # 4️⃣ Llamar al microservicio ML
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     self.ml_url, 
                     json=payload, 
                     timeout=30.0
                 )
-                
-                # Si hay error, mostrar detalles
+
                 if response.status_code != 200:
                     error_detail = response.text
-                    print(f"❌ Error {response.status_code} from ML: {error_detail}")
+                    print(f"Error {response.status_code} from ML: {error_detail}")
                     try:
                         error_json = response.json()
-                        print(f"❌ Error details: {error_json}")
+                        print(f"Error details: {error_json}")
                     except:
                         pass
                     response.raise_for_status()
                     
                 prediction_data = response.json()
 
-            print(f"✅ Respuesta ML recibida: {prediction_data}")
-
-            # 5️⃣ Guardar predicción en ml_prediction_log
             prediction = MLPredictionLog(
                 user_id=str(user_id),  # Guardar como string en BD
                 modelo_tipo="secuencial",
@@ -108,7 +96,6 @@ class PredictionService:
             self.session.add(prediction)
             await self.session.flush()
 
-            # 6️⃣ Crear relaciones en prediccion_historial
             for historial_id in historiales_ids:
                 relation = PrediccionHistorial(
                     id_prediccion=prediction.id_prediccion,
@@ -123,11 +110,11 @@ class PredictionService:
 
         except httpx.RequestError as e:
             await self.session.rollback()
-            print(f"❌ Error de conexión con ML: {str(e)}")
+            print(f"Error de conexión con ML: {str(e)}")
             raise DatabaseException(f"Error conectando con el servicio ML: {str(e)}")
         except Exception as e:
             await self.session.rollback()
-            print(f"❌ Error generando predicción: {str(e)}")
+            print(f"Error generando predicción: {str(e)}")
             raise DatabaseException(f"Error generating prediction: {str(e)}")
 
     def _convert_hora_dia_to_int(self, hora_dia):
@@ -139,7 +126,6 @@ class PredictionService:
         else:
             hora_str = str(hora_dia)
         
-        # Mapear texto a números según lo que espere el ML
         hora_mapping = {
             'madrugada': 0,
             'mañana': 1, 
@@ -152,4 +138,4 @@ class PredictionService:
             'night': 0
         }
         
-        return hora_mapping.get(hora_str.lower(), 1)  # Default a mañana si no se encuentra
+        return hora_mapping.get(hora_str.lower(), 1) 

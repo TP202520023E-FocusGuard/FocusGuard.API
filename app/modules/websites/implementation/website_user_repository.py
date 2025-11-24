@@ -42,7 +42,7 @@ class WebsiteUserRepository:
                 select(WebsiteUserModel).where(WebsiteUserModel.id == website_user_id)
             )
             return result.scalar_one_or_none()
-        except Exception as exc:  # pragma: no cover
+        except Exception as exc:
             raise DatabaseException(f"Error fetching user by id: {exc}") from exc
 
     async def get_by_user(self, user_id: int) -> list[WebsiteUserModel]:
