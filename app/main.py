@@ -16,7 +16,7 @@ from app.modules.ml_clasification.controllers.ml_prediction_controller import ro
 from app.modules.goals.controllers.goal_controller import router as goal_router
 from app.modules.objectives.controllers.weekly_goal_controller import router as weekly_goal_router
 from app.modules.objectives.controllers.daily_progress_controller import router as daily_progress_router
-
+from app.modules.ml.controllers.sequential_controller import router as ml_router
 app = FastAPI(
     title="FocusGuard API",
     description="Sistema para detectar y reducir procrastinación digital",
@@ -44,7 +44,7 @@ app.add_middleware(
 # Include routers
 # app.include_router(categories_router, prefix="/api/v1")
 # app.include_router(configuration_router, prefix="/api/v1")
-
+app.include_router(ml_router, prefix="/api/v1")
 app.include_router(goal_router, prefix="/api/v1")
 app.include_router(weekly_goal_router, prefix="/api/v1")
 app.include_router(user_router, prefix="/api/v1")
