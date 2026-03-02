@@ -25,6 +25,12 @@ class ContentUserService:
         self.website_user_repo = website_user_repo
 
     async def create(self, data: ContentUserCreate) -> ContentUserResponse:
+
+        existed_content_user = await self.repo.get_by_user_site_and_content(data.id_usuarios, data.id_sitios_web_usuario, data.id_contenidos)
+
+        if existed_content_user is not None:
+            return ContentUserResponse.model_validate(existed_content_user)
+
         user = await self.user_repo.get_by_id(data.id_usuarios)
         if user is None:
             raise NotFoundException("El ID de usuario proporcionado no existe.")
@@ -68,13 +74,21 @@ class ContentUserService:
         registros = await self.repo.get_by_user_and_site(user_id, site_id)
         return [ContentUserResponse.model_validate(item) for item in registros]
 
+    # async def get_by_user_site_and_content(
+    #     self, user_id: int, site_id: int, content_id: int
+    # ) -> list[ContentUserResponse]:
+    #     registros = await self.repo.get_by_user_site_and_content(
+    #         user_id, site_id, content_id
+    #     )
+    #     return [ContentUserResponse.model_validate(item) for item in registros]
+
     async def get_by_user_site_and_content(
         self, user_id: int, site_id: int, content_id: int
-    ) -> list[ContentUserResponse]:
-        registros = await self.repo.get_by_user_site_and_content(
+    ) -> ContentUserResponse:
+        registro = await self.repo.get_by_user_site_and_content(
             user_id, site_id, content_id
         )
-        return [ContentUserResponse.model_validate(item) for item in registros]
+        return ContentUserResponse.model_validate(registro)
 
     async def get_by_user_and_category(
         self, user_id: int, category_id: int

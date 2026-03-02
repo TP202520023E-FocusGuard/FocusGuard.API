@@ -58,16 +58,26 @@ class ContentUserRepository:
         registros = await self.db.scalars(stmt)
         return list(registros.all())
 
+    # async def get_by_user_site_and_content(
+    #     self, user_id: int, site_id: int, content_id: int
+    # ) -> list[ContentUserModel]:
+    #     stmt = select(ContentUserModel).where(
+    #         ContentUserModel.id_usuarios == user_id,
+    #         ContentUserModel.id_sitios_web_usuario == site_id,
+    #         ContentUserModel.id_contenidos == content_id,
+    #     )
+    #     registros = await self.db.scalars(stmt)
+    #     return list(registros.all())
+
     async def get_by_user_site_and_content(
         self, user_id: int, site_id: int, content_id: int
-    ) -> list[ContentUserModel]:
+    ) -> Optional[ContentUserModel]:
         stmt = select(ContentUserModel).where(
             ContentUserModel.id_usuarios == user_id,
             ContentUserModel.id_sitios_web_usuario == site_id,
             ContentUserModel.id_contenidos == content_id,
         )
-        registros = await self.db.scalars(stmt)
-        return list(registros.all())
+        return (await self.db.scalars(stmt)).one_or_none()
 
     async def get_by_user_and_category(
         self, user_id: int, category_id: int
