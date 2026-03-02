@@ -6,6 +6,7 @@ from app.core.exceptions import NotFoundException
 
 from app.modules.users.implementation.user_repository import UserRepository
 from app.modules.categories.implementation.category_website_repository import CategoryWebsiteRepository
+from app.modules.categories.implementation.category_repository import CategoryRepository
 from ..implementation.website_repository import WebsiteRepository
 from ..implementation.website_user_repository import WebsiteUserRepository
 
@@ -20,11 +21,13 @@ def get_service(db: AsyncSession = Depends(get_db)) -> WebsiteUserService:
     user_repo = UserRepository(db_session=db)
     website_repo = WebsiteRepository(db_session=db)
     category_repo = CategoryWebsiteRepository(db_session=db)
+    category_change_repo = CategoryRepository(db_session=db)
     return WebsiteUserService(
         repo=website_user_repo,
         user_repo=user_repo,
         website_repo=website_repo,
         category_repo=category_repo,
+        category_change_repo=category_change_repo
     )
 
 

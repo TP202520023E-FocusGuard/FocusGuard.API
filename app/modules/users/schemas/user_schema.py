@@ -15,6 +15,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=1)
+    frase_seguridad: str = Field(..., min_length=1)
 
 
 class UserUpdate(BaseModel):
@@ -33,6 +34,7 @@ class UserResponse(UserBase):
 
 class UserInDB(UserResponse):
     contrasenia_hash: str
+    frase_seguridad_hash: str
 
 
 class UserLogin(BaseModel):
@@ -50,3 +52,15 @@ class TokenPayload(BaseModel):
     sub: str
     correo: str
     exp: int
+
+class PasswordResetRequest(BaseModel):
+    correo: str
+    frase_seguridad: str = Field(..., min_length=1)
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    new_password: str = Field(..., min_length=6)
+
+class PasswordResetRequestResponse(BaseModel):
+    message: str
+    token: Optional[str] = None

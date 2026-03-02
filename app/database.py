@@ -1,9 +1,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+import os
 
-# 1. CADENA DE CONEXIÓN (DATABASE URL)
-# Formato: mysql+mysqldb://USUARIO:CONTRASEÑA@HOST/NOMBRE_BD
-DATABASE_URL = "mysql+mysqldb://root:root@localhost/focusguard"
+# Cargar variables del archivo .env
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # 2. CREAR EL ENGINE (MOTOR)
 

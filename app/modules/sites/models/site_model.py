@@ -49,7 +49,6 @@ class SiteBaseModel(Base):
     clasificacion_origen: Mapped[ClasificacionOrigen] = mapped_column(Enum(ClasificacionOrigen), default=ClasificacionOrigen.sistema)
     fecha_registro: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     
-    # Relaciones
     clasificacion: Mapped["ClassificationModel"] = relationship("ClassificationModel")
     clasificaciones_usuario: Mapped[list["UserClassificationModel"]] = relationship("UserClassificationModel", back_populates="sitio")
 
@@ -62,7 +61,6 @@ class UserSiteModel(Base):
     id_clasificacion: Mapped[int] = mapped_column(Integer, ForeignKey("Clasificacion.id_clasificacion"), nullable=False)
     fecha_deteccion: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     
-    # Relaciones
     clasificacion: Mapped["ClassificationModel"] = relationship("ClassificationModel")
 
 class UserClassificationModel(Base):
@@ -74,7 +72,6 @@ class UserClassificationModel(Base):
     id_clasificacion: Mapped[int] = mapped_column(Integer, ForeignKey("Clasificacion.id_clasificacion"), nullable=False)
     fecha: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
     
-    # Relaciones
     sitio: Mapped["SiteBaseModel"] = relationship("SiteBaseModel", back_populates="clasificaciones_usuario")
     clasificacion: Mapped["ClassificationModel"] = relationship("ClassificationModel")
 
@@ -97,5 +94,4 @@ class NavigationHistoryModel(Base):
     fue_bloqueado: Mapped[bool] = mapped_column(Boolean, default=False)
     usuario_ignoro_advertencia: Mapped[bool] = mapped_column(Boolean, default=False)
     
-    # Relaciones
     clasificacion_aplicada: Mapped["ClassificationModel"] = relationship("ClassificationModel")

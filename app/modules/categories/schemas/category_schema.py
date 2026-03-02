@@ -2,7 +2,6 @@ from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
-# Request Schemas
 class ChangeCategory(BaseModel):
     id: int
     id_usuarios: int

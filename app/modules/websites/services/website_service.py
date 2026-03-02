@@ -24,6 +24,14 @@ class WebsiteService:
         registros = await self.repo.get_all_global()
         return [WebsiteGlobalResponse.model_validate(item) for item in registros]
 
+    async def get_website_global_by_id(self, website_id: int) -> WebsiteGlobalResponse:
+        registro = await self.repo.get_website_global_by_id(website_id)
+
+        if registro is None:
+            raise ValueError("No se encontró un sitio web global con el id especificado.")
+
+        return WebsiteGlobalResponse.model_validate(registro)
+
     async def get_by_id(self, website_id: int) -> WebsiteResponse:
         registro = await self.repo.get_by_id(website_id)
 
