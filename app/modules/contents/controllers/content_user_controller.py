@@ -87,16 +87,28 @@ async def get_content_users_by_user_and_site(
     return await service.get_by_user_and_site(user_id, site_id)
 
 
+# @router.get(
+#     "/user/{user_id}/site/{site_id}/content/{content_id}",
+#     response_model=list[ContentUserResponse],
+# )
+# async def get_content_users_by_user_site_and_content(
+#     user_id: int,
+#     site_id: int,
+#     content_id: int,
+#     service: ContentUserService = Depends(get_service),
+# ) -> list[ContentUserResponse]:
+#     return await service.get_by_user_site_and_content(user_id, site_id, content_id)
+
 @router.get(
     "/user/{user_id}/site/{site_id}/content/{content_id}",
-    response_model=list[ContentUserResponse],
+    response_model=ContentUserResponse,
 )
 async def get_content_users_by_user_site_and_content(
     user_id: int,
     site_id: int,
     content_id: int,
     service: ContentUserService = Depends(get_service),
-) -> list[ContentUserResponse]:
+) -> ContentUserResponse:
     return await service.get_by_user_site_and_content(user_id, site_id, content_id)
 
 

@@ -14,7 +14,6 @@ class WebsiteVisitedBase(BaseModel):
 class WebsiteVisitedCreate(WebsiteVisitedBase):
     pass
 
-
 class WebsiteVisitedUpdate(BaseModel):
     fecha_hora_salida: datetime
 
