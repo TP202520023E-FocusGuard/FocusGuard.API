@@ -11,16 +11,13 @@ class MLService:
         Retorna los últimos 10 registros del usuario listos para enviarse al ML,
         incluyendo solo la categoría y el tiempo de estancia.
         """
-        # 1️⃣ Llamar al repositorio
         visitados = await self.repo.get_last_10_for_ml(user_id)
 
         if not visitados:
             raise NotFoundException(f"No se encontraron registros para el usuario {user_id}")
-
-        # 2️⃣ Transformar en el schema de salida
         items = [MLInputItem(**v) for v in visitados]
 
         return MLInputPayload(
             user_id=user_id, 
-            registros=items  # <--- Antes decía 'items=', por eso daba 500
+            registros=items
         )

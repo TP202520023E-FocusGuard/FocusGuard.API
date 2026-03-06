@@ -3,13 +3,13 @@ from typing import List
 from datetime import datetime
 
 class MLInputItem(BaseModel):
-    categoria: str                 # nombre de la categoría vigente
-    duracion_segundos: int         # tiempo de estancia en esa categoría (segundos)
+    categoria: str                 
+    duracion_segundos: int        
 
 
 class MLInputPayload(BaseModel):
-    user_id: int                   # id del usuario
-    registros: List[MLInputItem]   # lista de los últimos 10 registros
+    user_id: int                  
+    registros: List[MLInputItem]  
 
     class Config:
-        from_attributes = True     # permite construir desde objetos ORM
+        from_attributes = True   

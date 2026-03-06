@@ -20,13 +20,12 @@ class MLSequentialRepository:
                              AND c.fecha_hora <= v.fecha_hora_salida 
                              ORDER BY c.fecha_hora DESC LIMIT 1),
                             (SELECT s.id_categorias_web FROM sitios_web_usuario s WHERE s.id = v.id_sitios_web_usuario)
-                        )), 'Desconocida'
+                        )), 'Sin Categoria'
                     ) AS categoria_nombre,
-                    /* Como filtramos NOT NULL, el cálculo es más directo */
                     GREATEST(0, TIMESTAMPDIFF(SECOND, v.fecha_hora_ingreso, v.fecha_hora_salida)) AS duracion_segundos
                 FROM sitios_web_visitados v
                 WHERE v.id_usuarios = :user_id 
-                  AND v.fecha_hora_salida IS NOT NULL  /* <--- Filtro añadido */
+                  AND v.fecha_hora_salida IS NOT NULL
                 ORDER BY v.fecha_hora_ingreso DESC
                 LIMIT 10
             """)
