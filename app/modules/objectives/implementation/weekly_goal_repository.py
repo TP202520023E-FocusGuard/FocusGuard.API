@@ -40,3 +40,11 @@ class WeeklyGoalRepository:
             await self.session.commit()
             return True
         return False
+    
+    async def get_by_user(self, user_id: int) -> List[WeeklyGoalModel]:
+        stmt = select(WeeklyGoalModel).where(
+            WeeklyGoalModel.id_usuarios == user_id
+        ).order_by(WeeklyGoalModel.fecha_limite.asc())
+
+        result = await self.session.execute(stmt)
+        return result.scalars().all()

@@ -53,3 +53,11 @@ class WeeklyGoalService:
             raise ValueError("Objetivo semanal no encontrado")
         
         return await self.repo.delete(goal_id)
+    
+    async def get_by_user(self, user_id: int) -> List[WeeklyGoalResponse]:
+        goals = await self.repo.get_by_user(user_id)
+
+        if not goals:
+            return []
+
+        return [WeeklyGoalResponse.model_validate(g) for g in goals]
