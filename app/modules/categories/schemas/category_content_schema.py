@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 
 class CategoryContentBase(BaseModel):
     nombre: str = Field(..., max_length=25)
+    codigo: str = Field(..., max_length=25)
     es_ocio: bool
     peso: int
 

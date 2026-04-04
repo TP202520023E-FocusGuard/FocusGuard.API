@@ -28,6 +28,12 @@ class CategoryContentService:
             raise ValueError("Categoría de contenido no encontrada")
         return CategoryContentResponse.model_validate(categoria)
 
+    async def get_by_code(self, codigo: str) -> CategoryContentResponse:
+        categoria = await self.repo.get_by_code(codigo)
+        if categoria is None:
+            raise ValueError("Categoría de contenido no encontrada")
+        return CategoryContentResponse.model_validate(categoria)
+
     async def get_by_weight(self, peso: int) -> CategoryContentResponse:
         categoria = await self.repo.get_by_weight(peso)
         if categoria is None:
