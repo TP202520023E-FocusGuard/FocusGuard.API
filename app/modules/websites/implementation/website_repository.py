@@ -49,6 +49,18 @@ class WebsiteRepository:
         stmt = select(WebsiteModel).where(WebsiteModel.dominio == domain)
         return (await self.db.scalars(stmt)).one_or_none()
 
+    async def get_domains_by_ids(self, website_ids: list[int]) -> list[str]:
+        if not website_ids:
+            return []
+
+        stmt = (
+            select(WebsiteModel.dominio)
+            .where(WebsiteModel.id.in_(website_ids))
+            .order_by(WebsiteModel.id.asc())
+        )
+        dominios = (await self.db.scalars(stmt)).all()
+        return list(dominios)
+
     async def delete(self, registro: WebsiteModel) -> None:
         try:
             await self.db.delete(registro)

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
@@ -12,6 +12,7 @@ from ..implementation.website_user_repository import WebsiteUserRepository
 
 from ..schemas.website_user_schema import (WebsiteUserCreate, WebsiteUserUpdate, WebsiteUserResponse)
 from ..services.website_user_service import WebsiteUserService
+from ..services.website_service import WebsiteService
 
 router = APIRouter(prefix="/website-users", tags=["website_users"])
 
@@ -81,6 +82,15 @@ async def get_by_user_and_category(
     service: WebsiteUserService = Depends(get_service),
 ) -> list[WebsiteUserResponse]:
     return await service.get_by_user_and_category(user_id, category_id)
+
+
+@router.get("/users/{user_id}/categories/{category_id}/domains", response_model=list[str])
+async def get_domains_by_user_and_category(
+        user_id: int,
+        category_id: int,
+    service: WebsiteUserService = Depends(get_service),
+) -> list[str]:
+    return await service.get_domains_by_user_and_category(user_id, category_id)
 
 
 @router.put(
