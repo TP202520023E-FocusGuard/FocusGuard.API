@@ -52,7 +52,7 @@ async def get_website_by_id(
         ) from exc
 
 @router.get("/by-domain/{dominio}", response_model=WebsiteResponse)
-async def gey_website_by_domain(
+async def get_website_by_domain(
     dominio: str,
     service: WebsiteService = Depends(get_service),
 ) -> WebsiteResponse:

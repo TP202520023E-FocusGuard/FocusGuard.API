@@ -76,6 +76,13 @@ class WebsiteUserService:
         registros = await self.repo.get_by_user_and_category(user_id, category_id)
         return [WebsiteUserResponse.model_validate(item) for item in registros]
 
+    async def get_domains_by_user_and_category(
+        self, user_id: int, category_id: int
+    ) -> list[str]:
+        registros = await self.repo.get_by_user_and_category(user_id, category_id)
+        website_ids = [item.id_sitios_web for item in registros]
+        return await self.website_repo.get_domains_by_ids(website_ids)
+
     async def update_by_user_and_website(
         self,
         user_id: int,
