@@ -43,6 +43,12 @@ class CategoryContentRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_by_code(self, codigo: str) -> Optional[CategoryContentModel]:
+        result = await self.db.execute(
+            select(CategoryContentModel).where(CategoryContentModel.codigo == codigo)
+        )
+        return result.scalar_one_or_none()
+
     async def get_by_weight(self, peso: int) -> Optional[CategoryContentModel]:
         result = await self.db.execute(
             select(CategoryContentModel).where(CategoryContentModel.peso == peso)

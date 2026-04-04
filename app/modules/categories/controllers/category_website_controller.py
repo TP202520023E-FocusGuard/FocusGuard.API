@@ -53,6 +53,17 @@ async def get_category_by_name(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 
+@router.get("/codigo/{codigo}", response_model=CategoryWebsiteResponse)
+async def get_category_by_code(
+    codigo: str,
+    service: CategoryWebsiteService = Depends(get_service),
+):
+    try:
+        return await service.get_by_code(codigo)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+
 @router.get("/peso/{peso}", response_model=CategoryWebsiteResponse)
 async def get_category_by_weight(
     peso: int,

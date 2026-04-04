@@ -43,6 +43,12 @@ class CategoryWebsiteRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_by_code(self, codigo: str) -> Optional[CategoryWebsiteModel]:
+        result = await self.db.execute(
+            select(CategoryWebsiteModel).where(CategoryWebsiteModel.codigo == codigo)
+        )
+        return result.scalar_one_or_none()
+
     async def get_by_weight(self, peso: int) -> Optional[CategoryWebsiteModel]:
         result = await self.db.execute(
             select(CategoryWebsiteModel).where(CategoryWebsiteModel.peso == peso)
