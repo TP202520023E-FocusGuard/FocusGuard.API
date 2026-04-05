@@ -22,7 +22,7 @@ class RestTimeRepository:
         """Crea registro por defecto para un usuario nuevo"""
         new_tiempo = RestTimeModel(
             id_usuarios=user_id,
-            tiempo_total=60,  # puedes ajustar default
+            tiempo_total=60,
             tiempo_usado=0,
             fecha_actualizacion=date.today()
         )
