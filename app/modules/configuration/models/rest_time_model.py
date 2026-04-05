@@ -8,3 +8,5 @@ class RestTimeModel(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     id_usuarios: Mapped[int] = mapped_column(Integer, ForeignKey("usuarios.id"))
     tiempo_total: Mapped[int] = mapped_column(Integer, default=120)
+    tiempo_usado: Mapped[int] = mapped_column(Integer, default=0)
+    fecha_actualizacion: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

@@ -1,8 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from typing import Optional
+from datetime import date
+
 from app.modules.configuration.models.rest_time_model import RestTimeModel
 from app.modules.configuration.schemas.rest_time_schema import RestTimeUpdate
+
 
 class RestTimeRepository:
     def __init__(self, session: AsyncSession):
@@ -19,7 +22,9 @@ class RestTimeRepository:
         """Crea registro por defecto para un usuario nuevo"""
         new_tiempo = RestTimeModel(
             id_usuarios=user_id,
-            tiempo_total=0
+            tiempo_total=60,  # puedes ajustar default
+            tiempo_usado=0,
+            fecha_actualizacion=date.today()
         )
         self.session.add(new_tiempo)
         await self.session.commit()
@@ -43,6 +48,31 @@ class RestTimeRepository:
             update(RestTimeModel)
             .where(RestTimeModel.id_usuarios == user_id)
             .values(**update_data)
+        )
+        await self.session.commit()
+        
+        return await self.get_by_user_id(user_id)
+    
+    async def reset_tiempo(self, user_id: int, today: date) -> Optional[RestTimeModel]:
+        await self.session.execute(
+            update(RestTimeModel)
+            .where(RestTimeModel.id_usuarios == user_id)
+            .values(
+                tiempo_usado=0,
+                fecha_actualizacion=today
+            )
+        )
+        await self.session.commit()
+        
+        return await self.get_by_user_id(user_id)
+    
+    async def increment_time(self, user_id: int, minutos: int) -> Optional[RestTimeModel]:
+        await self.session.execute(
+            update(RestTimeModel)
+            .where(RestTimeModel.id_usuarios == user_id)
+            .values(
+                tiempo_usado=RestTimeModel.tiempo_usado + minutos
+            )
         )
         await self.session.commit()
         
