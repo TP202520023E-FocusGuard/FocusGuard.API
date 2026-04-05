@@ -58,3 +58,14 @@ async def delete_weekly_goal(goal_id: int, service: WeeklyGoalService = Depends(
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Objetivo semanal no encontrado")
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    
+@router.get("/user/{user_id}", response_model=List[WeeklyGoalResponse])
+async def get_weekly_goals_by_user(
+    user_id: int,
+    service: WeeklyGoalService = Depends(get_service)
+):
+    """
+    Obtiene todos los objetivos semanales de un usuario.
+    """
+    goals = await service.get_by_user(user_id)
+    return goals
