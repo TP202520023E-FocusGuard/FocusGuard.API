@@ -12,7 +12,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(
     DATABASE_URL,
-    echo=False # echo=True imprime las consultas SQL generadas en la consola (útil para debug).
+    echo=False
 )
 
 # 3. CREAR LA FÁBRICA DE SESIONES
