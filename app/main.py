@@ -17,6 +17,9 @@ from app.modules.goals.controllers.goal_controller import router as goal_router
 from app.modules.objectives.controllers.weekly_goal_controller import router as weekly_goal_router
 from app.modules.objectives.controllers.daily_progress_controller import router as daily_progress_router
 from app.modules.configuration.controllers.rest_time_controller import router as rest_time_router
+from app.modules.reports.controllers.top_site_controller import router as top_site_router
+from app.modules.ml.controllers.prediction_controller import router as ml_prediction_controller
+
 
 app = FastAPI(
     title="FocusGuard API",
@@ -46,8 +49,9 @@ app.add_middleware(
 # app.include_router(categories_router, prefix="/api/v1")
 # app.include_router(configuration_router, prefix="/api/v1")
 
+app.include_router(ml_prediction_controller, prefix="/api/v1")
 app.include_router(rest_time_router, prefix="/api/v1")
-
+app.include_router(top_site_router, prefix="/api/v1")
 app.include_router(goal_router, prefix="/api/v1")
 app.include_router(weekly_goal_router, prefix="/api/v1")
 app.include_router(user_router, prefix="/api/v1")

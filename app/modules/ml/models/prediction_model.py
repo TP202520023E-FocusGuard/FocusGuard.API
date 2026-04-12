@@ -1,29 +1,24 @@
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, JSON, ForeignKey, Text, Enum as SQLEnum
-from datetime import datetime
+from sqlalchemy import Column, Integer, Float, String, DateTime, Boolean, ForeignKey
 from app.core.database import Base
 
-class MLPredictionLog(Base):
-    __tablename__ = "ml_prediction_log"
-    
-    id_prediccion = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(String(50), nullable=False)
-    modelo_tipo = Column(SQLEnum('contextual', 'predictivo', 'secuencial'), nullable=False)
-    fecha_prediccion = Column(DateTime, default=datetime.now)
 
-    focus_level = Column(Float, nullable=True)
-    needs_intervention = Column(Boolean, default=False)
-    confidence = Column(Float, nullable=True)
-    predicted_duration = Column(Integer, nullable=True)
-    risk_factors = Column(JSON, nullable=True)
-    sequence_stats = Column(JSON, nullable=True)
-    
-    source_ip = Column(String(45), nullable=True)
-    ejecutado_por = Column(String(100), nullable=True)
-    observaciones = Column(Text, nullable=True)
+class PrediccionSecuencial(Base):
+    __tablename__ = "predicciones_secuencial"
 
-class PrediccionHistorial(Base):
-    __tablename__ = "prediccion_historial"
+    id = Column(Integer, primary_key=True, autoincrement=True)
     
-    id_relacion = Column(Integer, primary_key=True, autoincrement=True)
-    id_prediccion = Column(Integer, ForeignKey("ml_prediction_log.id_prediccion", ondelete="CASCADE"))
-    id_historial = Column(Integer, ForeignKey("historial_navegacion.id_historial", ondelete="CASCADE"))
+    id_usuarios = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+
+    ts_prediccion = Column(DateTime, nullable=False)
+
+    horizonte_segundos = Column(Integer, nullable=False)
+
+    prob_procrastinacion = Column(Float, nullable=False)
+
+    umbral_decision = Column(Float, nullable=True)
+
+    version_modelo = Column(String(50), nullable=False)
+
+    features_hash = Column(String(64), nullable=False)
+
+    is_procrastinating = Column(Boolean, nullable=True)
