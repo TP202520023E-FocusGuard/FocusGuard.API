@@ -8,5 +8,4 @@ class CategoryWebsiteModel(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     nombre = Column(String(25), nullable=False)
-    codigo = Column(String(25), nullable=False)
     peso = Column(Integer, nullable=False)

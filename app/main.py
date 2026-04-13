@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 # from app.modules.categories.controllers.category_controller import router as categories_router
-# from app.modules.configuration.controllers.configuration_controller import router as configuration_router
+#from app.modules.configuration.controllers.configuration_controller import router as configuration_router
 from app.modules.websites.controllers.website_controller import router as website_router
 from app.modules.websites.controllers.website_user_controller import router as website_user_router
 from app.modules.websites.controllers.website_visited_controller import router as website_visited_router
@@ -65,7 +65,7 @@ app.include_router(content_router, prefix="/api/v1")
 app.include_router(content_user_router, prefix="/api/v1")
 app.include_router(content_visited_router, prefix="/api/v1")
 app.include_router(ml_prediction_controller, prefix="/api/v1")
-
+#app.include_router(configuration_router, prefix="/api/v1")
 app.include_router(weekly_goal_router, prefix="/api/v1")
 app.include_router(daily_progress_router, prefix="/api/v1")
 
