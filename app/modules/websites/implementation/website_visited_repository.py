@@ -21,6 +21,7 @@ class WebsiteVisitedRepository:
             id_sitios_web_usuario=data.id_sitios_web_usuario,
             fecha_hora_ingreso=data.fecha_hora_ingreso,
             fecha_hora_salida=data.fecha_hora_salida,
+            id_categorias_web_snapshot=data.id_categorias_web_snapshot,
         )
 
         try:
