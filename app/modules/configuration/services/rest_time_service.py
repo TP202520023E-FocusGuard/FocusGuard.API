@@ -14,13 +14,16 @@ class RestTimeService:
         """Obtiene el tiempo de descanso del usuario, crea uno si no existe y resetea si es necesario"""
         
         tiempo = await self.repository.get_by_user_id(user_id)
-        
+        hoy = date.today()
+
         if tiempo is None:
             tiempo = await self.repository.create(user_id)
+            tiempo.fecha_actualizacion = hoy
+            return RestTimeResponse.model_validate(tiempo)
 
-        hoy = date.today()
         if tiempo.fecha_actualizacion != hoy:
             tiempo = await self.repository.reset_tiempo(user_id, hoy)
+            tiempo.fecha_actualizacion = hoy
         
         return RestTimeResponse.model_validate(tiempo)
     
