@@ -58,7 +58,6 @@ class RestTimeRepository:
             update(RestTimeModel)
             .where(RestTimeModel.id_usuarios == user_id)
             .values(
-                tiempo_usado=0,
                 fecha_actualizacion=today
             )
         )
