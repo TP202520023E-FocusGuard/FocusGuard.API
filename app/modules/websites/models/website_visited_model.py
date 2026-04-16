@@ -14,4 +14,4 @@ class WebsiteVisitedModel(Base):
     )
     fecha_hora_ingreso = Column(DateTime, nullable=False)
     fecha_hora_salida = Column(DateTime, nullable=True)
-    id_categorias_web_snapshot = Column(Integer, ForeignKey("categorias_web.id"), nullable=True)
+    id_categorias_web = Column(Integer, ForeignKey("categorias_web.id"), nullable=True)

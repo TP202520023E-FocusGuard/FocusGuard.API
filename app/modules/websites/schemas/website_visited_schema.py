@@ -9,7 +9,7 @@ class WebsiteVisitedBase(BaseModel):
     id_sitios_web_usuario: int
     fecha_hora_ingreso: datetime
     fecha_hora_salida: Optional[datetime] = None
-    id_categorias_web_snapshot: Optional[int] = None
+    id_categorias_web: Optional[int] = None
 
 class WebsiteVisitedCreate(WebsiteVisitedBase):
     pass
