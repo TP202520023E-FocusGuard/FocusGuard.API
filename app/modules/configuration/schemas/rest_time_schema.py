@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
-from datetime import date
+from datetime import datetime
 
 
 class RestTimeBase(BaseModel):
@@ -10,7 +10,7 @@ class RestTimeBase(BaseModel):
     id_usuarios: int
     tiempo_total: int
     tiempo_usado: int
-    fecha_actualizacion: date
+    fecha_actualizacion: datetime
 
 
 class RestTimeUpdate(BaseModel):
@@ -27,4 +27,4 @@ class RestTimeResponse(BaseModel):
     id_usuarios: int
     tiempo_total: int
     tiempo_usado: int
-    fecha_actualizacion: date
+    fecha_actualizacion: datetime
