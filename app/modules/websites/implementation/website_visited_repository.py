@@ -19,9 +19,9 @@ class WebsiteVisitedRepository:
         registro = WebsiteVisitedModel(
             id_usuarios=data.id_usuarios,
             id_sitios_web_usuario=data.id_sitios_web_usuario,
+            id_categorias_web=data.id_categorias_web,
             fecha_hora_ingreso=data.fecha_hora_ingreso,
-            fecha_hora_salida=data.fecha_hora_salida,
-            id_categorias_web_snapshot=data.id_categorias_web_snapshot,
+            fecha_hora_salida=data.fecha_hora_salida
         )
 
         try:
