@@ -69,3 +69,61 @@ async def get_weekly_goals_by_user(
     """
     goals = await service.get_by_user(user_id)
     return goals
+
+@router.post("/{goal_id}/complete", response_model=WeeklyGoalResponse)
+async def mark_weekly_goal_as_completed(
+    goal_id: int,
+    service: WeeklyGoalService = Depends(get_service)
+):
+    """
+    Marca un objetivo semanal como completado.
+    """
+    try:
+        return await service.mark_as_completed(goal_id)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    
+# RUTAS PARA MEDIR PROGRESO
+
+@router.get("/progress/user/{user_id}")
+async def get_user_goals_progress(
+    user_id: int,
+    service: WeeklyGoalService = Depends(get_service)
+):
+    """
+    Obtiene el progreso de todos los objetivos de un usuario.
+    """
+    try:
+        progress = await service.get_goals_progress(user_id)
+        return {
+            "success": True,
+            "data": progress
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener progreso: {str(e)}"
+        )
+
+@router.get("/progress/goal/{goal_id}/user/{user_id}")
+async def get_goal_progress(
+    goal_id: int,
+    user_id: int,
+    service: WeeklyGoalService = Depends(get_service)
+):
+    """
+    Obtiene el progreso de un objetivo específico.
+    """
+    try:
+        progress = await service.get_goal_progress(goal_id, user_id)
+        return {
+            "success": True,
+            "data": progress
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener progreso: {str(e)}"
+        )

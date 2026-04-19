@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Dict, List, Optional, Any
 from app.modules.objectives.schemas.weekly_goal_schema import WeeklyGoalCreate, WeeklyGoalUpdate, WeeklyGoalResponse
 from app.modules.objectives.implementation.weekly_goal_repository import WeeklyGoalRepository
 
@@ -61,3 +61,26 @@ class WeeklyGoalService:
             return []
 
         return [WeeklyGoalResponse.model_validate(g) for g in goals]
+    
+    async def mark_as_completed(self, goal_id: int) -> WeeklyGoalResponse:
+        goal = await self.repo.mark_as_completed(goal_id)
+        if not goal:
+            raise ValueError("Objetivo semanal no encontrado")
+        return WeeklyGoalResponse.model_validate(goal)
+    
+    # METODOS PARA MEDIR PROGRESO
+
+    async def get_goals_progress(self, user_id: int) -> List[Dict[str, Any]]:
+        """
+        Obtiene el progreso de todos los objetivos del usuario
+        """
+        return await self.repo.get_goals_progress(user_id)
+    
+    async def get_goal_progress(self, goal_id: int, user_id: int) -> Dict[str, Any]:
+        """
+        Obtiene el progreso de un objetivo específico
+        """
+        progress = await self.repo.get_goal_progress(goal_id, user_id)
+        if not progress:
+            raise ValueError("Objetivo semanal no encontrado")
+        return progress
