@@ -119,14 +119,8 @@ async def request_password_reset(
     request: PasswordResetRequest,
     service: UserService = Depends(get_service),
 ):
-    """
-    Valida credenciales para recuperación
-    """
-    try:
-        is_valid = await service.request_password_reset(request)
-        return {"valid": is_valid}
-    except DatabaseException as exc:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc))
+    result = await service.request_password_reset(request)
+    return result
 
 @router.post("/password-reset-confirm", status_code=status.HTTP_200_OK)
 async def confirm_password_reset(

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, UTC
 from sqlalchemy import func
 import secrets
-from typing import Dict, Optional
+from typing import Dict
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -29,6 +29,9 @@ from app.modules.users.schemas.user_schema import (
 ACCESS_TOKEN_EXPIRE_MINUTES = 5
 ALGORITHM = "HS256"
 
+# 🟢 MEMORIA GLOBAL (IMPORTANTE)
+RESET_TOKENS: Dict[str, dict] = {}
+
 
 class UserService:
 
@@ -36,25 +39,26 @@ class UserService:
 
     def __init__(self, db_session: AsyncSession):
         self.repository = UserRepository(db_session)
-        self._reset_tokens: Dict[str, dict] = {}
-        self._pending_reset: Optional[str] = None
+
+    # -------------------------
+    # USERS
+    # -------------------------
 
     async def create_user(self, user_create: UserCreate) -> UserResponse:
         existing_user = await self.repository.get_by_email(user_create.correo)
         if existing_user:
             raise BusinessException("A user with this email already exists")
 
-        hashed_password = self._hash_password(user_create.password)
-        hashed_frase = self._hash_password(user_create.frase_seguridad)  # Nueva
         user = UserModel(
             correo=user_create.correo,
-            contrasenia_hash=hashed_password,
+            contrasenia_hash=self._hash_password(user_create.password),
             nombres=user_create.nombres,
             apellidos=user_create.apellidos,
             telefono=user_create.telefono,
             fecha_registro=func.now(),
-            frase_seguridad_hash=hashed_frase  # Nueva
+            frase_seguridad_hash=self._hash_password(user_create.frase_seguridad)
         )
+
         created_user = await self.repository.create(user)
         return UserResponse.model_validate(created_user)
 
@@ -80,9 +84,11 @@ class UserService:
             raise NotFoundException(f"User with id {user_id} not found")
 
         update_data = user_update.model_dump(exclude_unset=True)
+
         password = update_data.pop("password", None)
         if password:
             user.contrasenia_hash = self._hash_password(password)
+
         for field, value in update_data.items():
             if value is not None:
                 setattr(user, field, value)
@@ -93,6 +99,10 @@ class UserService:
     async def delete_user(self, user_id: int) -> None:
         await self.repository.delete(user_id)
 
+    # -------------------------
+    # AUTH
+    # -------------------------
+
     async def authenticate_user(self, email: str, password: str) -> UserModel:
         user = await self.repository.get_by_email(email)
         if not user or not self._verify_password(password, user.contrasenia_hash):
@@ -101,81 +111,109 @@ class UserService:
 
     async def login(self, credentials: UserLogin) -> Token:
         user = await self.authenticate_user(credentials.correo, credentials.password)
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = self.create_access_token(
+
+        expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+
+        token = self.create_access_token(
             subject=str(user.id),
             email=user.correo,
-            expires_delta=access_token_expires,
-        )
-        return Token(
-            access_token=access_token,
-            expires_in=int(access_token_expires.total_seconds()),
+            expires_delta=expires,
         )
 
-    def create_access_token(
-        self, *, subject: str, email: str, expires_delta: timedelta
-    ) -> str:
+        return Token(
+            access_token=token,
+            expires_in=int(expires.total_seconds()),
+        )
+
+    def create_access_token(self, *, subject: str, email: str, expires_delta: timedelta) -> str:
         expire = datetime.now(UTC) + expires_delta
-        to_encode = {
+
+        payload = {
             "sub": subject,
             "correo": email,
             "exp": int(expire.timestamp()),
         }
-        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
+
+        return jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGORITHM)
 
     def decode_token(self, token: str) -> TokenPayload:
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
             return TokenPayload(**payload)
-        except JWTError as exc:
-            raise AuthenticationException("Invalid token") from exc
+        except JWTError:
+            raise AuthenticationException("Invalid token")
+
+    # -------------------------
+    # PASSWORD RESET (2 PASOS)
+    # -------------------------
+
+    async def request_password_reset(self, reset_request: PasswordResetRequest):
+        """
+        Paso 1: validar usuario + frase de seguridad
+        y generar token temporal
+        """
+
+        user = await self.repository.get_by_email(reset_request.correo)
+
+        if not user:
+            await self._security_delay()
+            return {
+                "message": "invalid"
+            }
+
+        if not self._verify_password(
+            reset_request.frase_seguridad,
+            user.frase_seguridad_hash
+        ):
+            await self._security_delay()
+            return {
+                "message": "invalid"
+            }
+
+        # generar token único
+        token = secrets.token_urlsafe(32)
+
+        RESET_TOKENS[token] = {
+            "email": user.correo,
+            "expires": datetime.now(UTC) + timedelta(minutes=10)
+        }
+
+        return {
+            "message": "valid",
+            "token": token
+        }
+
+    async def reset_password(self, reset_confirm: PasswordResetConfirm) -> None:
+        """
+        Paso 2: validar token y cambiar contraseña
+        """
+
+        data = RESET_TOKENS.get(reset_confirm.token)
+
+        if not data:
+            raise AuthenticationException("Token inválido")
+
+        if data["expires"] < datetime.now(UTC):
+            del self._reset_tokens[reset_confirm.token]
+            raise AuthenticationException("Token expirado")
+
+        user = await self.repository.get_by_email(data["email"])
+
+        if not user:
+            raise NotFoundException("Usuario no encontrado")
+
+        user.contrasenia_hash = self._hash_password(reset_confirm.new_password)
+        await self.repository.update(user)
+
+        del RESET_TOKENS[reset_confirm.token]
+
 
     def _hash_password(self, password: str) -> str:
         return self.pwd_context.hash(password.encode("utf-8"))
 
     def _verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return self.pwd_context.verify(plain_password.encode("utf-8"), hashed_password)
-    
-    async def request_password_reset(self, reset_request: PasswordResetRequest) -> bool:
-        """
-        Valida email y frase de seguridad
-        Devuelve True si son correctos, False si no
-        """
-        # Buscar usuario por email
-        user = await self.repository.get_by_email(reset_request.correo)
-        if not user:
-            await self._security_delay()
-            return False
-
-        # Verificar frase de seguridad
-        if not self._verify_password(reset_request.frase_seguridad, user.frase_seguridad_hash):
-            await self._security_delay()
-            return False
-
-        # Guardar email válido en sesión para el paso 2
-        self._pending_reset = user.correo
-        return True
-
-    async def reset_password(self, reset_confirm: PasswordResetConfirm) -> None:
-        """
-        Restablece la contraseña para el email en sesión
-        """
-        if not self._pending_reset:
-            raise AuthenticationException("Solicitud de recuperación no encontrada")
-
-        # Buscar usuario por email de la sesión
-        user = await self.repository.get_by_email(self._pending_reset)
-        if not user:
-            raise NotFoundException("Usuario no encontrado")
-
-        # Actualizar contraseña
-        user.contrasenia_hash = self._hash_password(reset_confirm.new_password)
-        await self.repository.update(user)
-
-        # Limpiar sesión
-        self._pending_reset = None
 
     async def _security_delay(self):
         import asyncio
         await asyncio.sleep(1.5)
-
