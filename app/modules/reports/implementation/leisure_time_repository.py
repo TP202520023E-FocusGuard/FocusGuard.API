@@ -19,8 +19,8 @@ class LeisureTimeRepository:
                 ROUND(SUM(hours), 2) AS total_hours
             FROM (
                 SELECT
-                    WEEKDAY(v.fecha_hora_ingreso) AS weekday,
-                    DAYNAME(v.fecha_hora_ingreso) AS day,
+                    WEEKDAY(CONVERT_TZ(v.fecha_hora_ingreso, '+00:00', '-05:00')) AS weekday,
+					DAYNAME(CONVERT_TZ(v.fecha_hora_ingreso, '+00:00', '-05:00')) AS day,
                     TIMESTAMPDIFF(SECOND, v.fecha_hora_ingreso, v.fecha_hora_salida) / 3600 AS hours
                 FROM sitios_web_visitados v
                 JOIN categorias_web cw
