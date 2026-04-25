@@ -92,6 +92,18 @@ async def get_domains_by_user_and_category(
 ) -> list[str]:
     return await service.get_domains_by_user_and_category(user_id, category_id)
 
+@router.get("/users/{user_id}/domain/{domain}", response_model=str)
+async def get_cat_website_by_user_and_domain(
+    user_id: int,
+    domain: str,
+    service: WebsiteUserService = Depends(get_service),
+) -> str:
+    try:
+        return await service.get_cat_website_by_user_and_domain(user_id, domain)
+    except NotFoundException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
 
 @router.put(
     "/users/{user_id}/sites/{website_id}",

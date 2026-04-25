@@ -83,6 +83,23 @@ class WebsiteUserService:
         website_ids = [item.id_sitios_web for item in registros]
         return await self.website_repo.get_domains_by_ids(website_ids)
 
+    async def get_cat_website_by_user_and_domain(
+        self, user_id: int, domain: str
+    ) -> str:
+        website = await self.website_repo.get_by_domain(domain)
+        if not website:
+            raise NotFoundException(f"El dominio {domain} no está registrado.")
+
+        registro = await self.repo.get_by_user_and_website(user_id, website.id)
+        if not registro:
+            raise NotFoundException("El usuario no tiene una categoría asignada para este sitio.")
+
+        category = await self.category_repo.get_by_id(registro.id_categorias_web)
+        if not category:
+            raise NotFoundException("La categoría asociada no existe en el sistema.")
+
+        return category.nombre
+
     async def update_by_user_and_website(
         self,
         user_id: int,
