@@ -4,7 +4,7 @@ from typing import List
 
 from app.core.database import get_db
 from app.modules.ml.services.prediction_service import PredictionService
-from app.modules.ml.schemas.prediction_schema import PrediccionRequest, PrediccionResponse
+from app.modules.ml.schemas.prediction_schema import PrediccionRequest, PrediccionResponse, DecisionMLResponse
 
 
 router = APIRouter(prefix="/ml", tags=["Machine Learning"])
@@ -14,7 +14,7 @@ def get_service(db: AsyncSession = Depends(get_db)) -> PredictionService:
     return PredictionService(db)
 
 
-@router.post("/predict", response_model=PrediccionResponse)
+@router.post("/predict", response_model=DecisionMLResponse)
 async def generate_prediction(
     request: PrediccionRequest,
     service: PredictionService = Depends(get_service)
