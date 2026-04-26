@@ -15,18 +15,24 @@ class PredictionService:
         self.session = session
         self.repo = PrediccionFeatureRepository(session)
 
-        self.ml_url = "https://villagy-prodigally-birdie.ngrok-free.dev/predict"
-        self.threshold = 0.5
+        self.ml_url = "https://villagy-prodigally-birdie.ngrok-free.dev/decision"
+
         self.model_version = "modelo_procrastinacion_v1"
-        self.horizon_seconds = 7200
 
     async def generate_prediction(self, request: PrediccionRequest):
         try:
-            features = await self.repo.get_features_by_user(request.id_usuario)
+            # =====================================================
+            # 1. FEATURES
+            # =====================================================
+            features = await self.repo.get_features_by_user(request.id_usuarios)
 
             payload = {
-                "id_usuario": request.id_usuario,
-                "registros": features
+                "id_usuario": request.id_usuarios,
+                "registros": features,
+
+                # opcional: puedes enriquecer estado DQN
+                "intervenciones_recientes": 0.0,
+                "ocio": 0.5
             }
 
             async with httpx.AsyncClient() as client:
@@ -42,13 +48,16 @@ class PredictionService:
             features_hash = self._generate_hash(payload)
 
             prediction = PrediccionSecuencial(
-                id_usuarios=request.id_usuario,
+                id_usuarios=request.id_usuarios,
                 ts_prediccion=datetime.now(timezone.utc),
-                horizonte_segundos=ml_result.get("horizon_seconds", self.horizon_seconds),
+
+                horizonte_segundos=ml_result.get("horizon_seconds", 7200),
                 prob_procrastinacion=ml_result.get("score", 0.0),
-                umbral_decision=ml_result.get("threshold", self.threshold),
+                umbral_decision=ml_result.get("umbral_decision", 0.5),
                 is_procrastinating=ml_result.get("is_procrastinating", False),
+
                 version_modelo=ml_result.get("model_version", self.model_version),
+
                 features_hash=features_hash
             )
 
@@ -57,14 +66,23 @@ class PredictionService:
             await self.session.refresh(prediction)
 
             return {
-                "id_prediccion": prediction.id,
-                "id_usuario": prediction.id_usuarios,
+                # --- BD DATA ---
+                "id": prediction.id,
+                "id_usuarios": prediction.id_usuarios,
+
                 "prob_procrastinacion": prediction.prob_procrastinacion,
                 "is_procrastinating": prediction.is_procrastinating,
+
                 "umbral_decision": prediction.umbral_decision,
                 "version_modelo": prediction.version_modelo,
                 "horizonte_segundos": prediction.horizonte_segundos,
-                "ts_prediccion": prediction.ts_prediccion
+                "ts_prediccion": prediction.ts_prediccion,
+
+                # --- DQN DATA (runtime only) ---
+                "action": ml_result.get("action"),
+                "source": ml_result.get("source"),
+                "raw_action": ml_result.get("raw_action"),
+                "q_values": ml_result.get("q_values")
             }
 
         except httpx.RequestError as e:
@@ -79,11 +97,10 @@ class PredictionService:
         return hashlib.sha256(
             json.dumps(payload, sort_keys=True).encode()
         ).hexdigest()
-    
+
     async def get_predictions_by_user(self, user_id: int):
         try:
-            predictions = await self.repo.get_by_user(user_id)
-            return predictions
+            return await self.repo.get_by_user(user_id)
 
         except Exception as e:
             raise DatabaseException(f"Error obteniendo predicciones: {str(e)}")
