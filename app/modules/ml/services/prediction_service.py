@@ -15,7 +15,7 @@ class PredictionService:
         self.session = session
         self.repo = PrediccionFeatureRepository(session)
 
-        self.ml_url = "https://villagy-prodigally-birdie.ngrok-free.dev/decision"
+        self.ml_url = "http://127.0.0.1:8000/decision"
 
         self.model_version = "modelo_procrastinacion_v1"
 
