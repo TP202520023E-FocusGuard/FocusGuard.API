@@ -67,7 +67,6 @@ app.include_router(content_user_router, prefix="/api/v1")
 app.include_router(content_visited_router, prefix="/api/v1")
 app.include_router(ml_clasification_controller, prefix="/api/v1")
 #app.include_router(configuration_router, prefix="/api/v1")
-app.include_router(weekly_goal_router, prefix="/api/v1")
 app.include_router(daily_progress_router, prefix="/api/v1")
 
 @app.get("/")

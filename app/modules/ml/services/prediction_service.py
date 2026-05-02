@@ -15,7 +15,7 @@ class PredictionService:
         self.session = session
         self.repo = PrediccionFeatureRepository(session)
 
-        self.ml_url = "https://villagy-prodigally-birdie.ngrok-free.dev/decision"
+        self.ml_url = "https://focusguard-ml-api-c4d2cuarh3byeadf.eastus-01.azurewebsites.net/decision"
 
         self.model_version = "modelo_procrastinacion_v1"
 
