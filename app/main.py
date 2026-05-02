@@ -31,15 +31,14 @@ app = FastAPI(
 
 #EXTENSION_ORIGIN = "chrome-extension://jmnlmmgpeadljmioaojnmihpoddebcml"
 
-#origins = [
-#    "http://localhost",
-#    "http://localhost:8000"
-#   #EXTENSION_ORIGIN,  # ID de la extensión
-#]
+origins = [
+    "https://focusguard-application.netlify.app",
+    "http://localhost:5173"
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Cualquier origen
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
