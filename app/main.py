@@ -19,6 +19,7 @@ from app.modules.objectives.controllers.daily_progress_controller import router 
 from app.modules.configuration.controllers.rest_time_controller import router as rest_time_router
 from app.modules.reports.controllers.top_site_controller import router as top_site_router
 from app.modules.ml.controllers.prediction_controller import router as ml_prediction_controller
+from app.modules.interventions.controllers.intervention_controller import router as intervention_router
 
 
 app = FastAPI(
@@ -68,6 +69,7 @@ app.include_router(ml_prediction_controller, prefix="/api/v1")
 #app.include_router(configuration_router, prefix="/api/v1")
 app.include_router(weekly_goal_router, prefix="/api/v1")
 app.include_router(daily_progress_router, prefix="/api/v1")
+app.include_router(intervention_router, prefix="/api/v1")
 
 @app.get("/")
 async def root():
