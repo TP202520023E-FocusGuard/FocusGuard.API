@@ -28,7 +28,7 @@ class CategoryUserModel(Base):
     )
 
 class ChangeCategoryModel(Base):
-    __tablename__ = "Cambios_Categoria"
+    __tablename__ = "cambios_categoria"
     
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     id_usuarios: Mapped[int] = mapped_column(Integer, nullable=False)

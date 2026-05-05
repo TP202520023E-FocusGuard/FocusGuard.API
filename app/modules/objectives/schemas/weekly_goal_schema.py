@@ -28,6 +28,9 @@ class WeeklyGoalResponse(BaseModel):
     tiempo: int
     opcion_2: int
     opcion_3: str
+    fecha_inicio: datetime      
     fecha_limite: datetime
+    fecha_actualizacion: datetime
+    completado: bool            
 
     model_config = ConfigDict(from_attributes=True)

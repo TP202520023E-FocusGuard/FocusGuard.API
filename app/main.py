@@ -20,7 +20,7 @@ from app.modules.configuration.controllers.rest_time_controller import router as
 from app.modules.reports.controllers.top_site_controller import router as top_site_router
 from app.modules.ml.controllers.prediction_controller import router as ml_prediction_controller
 from app.modules.interventions.controllers.intervention_controller import router as intervention_router
-
+from app.modules.reports.controllers.leisure_time_controller import router as leisure_time_router
 
 app = FastAPI(
     title="FocusGuard API",
@@ -32,15 +32,14 @@ app = FastAPI(
 
 #EXTENSION_ORIGIN = "chrome-extension://jmnlmmgpeadljmioaojnmihpoddebcml"
 
-#origins = [
-#    "http://localhost",
-#    "http://localhost:8000"
-#   #EXTENSION_ORIGIN,  # ID de la extensión
-#]
+origins = [
+    "https://focusguard-application.netlify.app",
+    "http://localhost:5173"
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Cualquier origen
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -50,6 +49,7 @@ app.add_middleware(
 # app.include_router(categories_router, prefix="/api/v1")
 # app.include_router(configuration_router, prefix="/api/v1")
 
+app.include_router(leisure_time_router, prefix="/api/v1")
 app.include_router(ml_prediction_controller, prefix="/api/v1")
 app.include_router(rest_time_router, prefix="/api/v1")
 app.include_router(top_site_router, prefix="/api/v1")
