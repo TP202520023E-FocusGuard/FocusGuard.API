@@ -80,7 +80,7 @@ class PredictionService:
 
                 # --- DQN DATA (runtime only) ---
                 "action": ml_result.get("action"),
-                "source": ml_result.get("source"),
+                "source": ml_result.get("source") or "fallback",
                 "raw_action": ml_result.get("raw_action"),
                 "q_values": ml_result.get("q_values")
             }
