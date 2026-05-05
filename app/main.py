@@ -34,7 +34,8 @@ app = FastAPI(
 
 origins = [
     "https://focusguard-application.netlify.app",
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "chrome-extension://bbojhbamnnececlfenffckgabakbdfop"
 ]
 
 app.add_middleware(
