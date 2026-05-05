@@ -11,7 +11,10 @@ class PrediccionFeatureRepository:
     async def get_features_by_user(self, user_id: int):
         query = text("""
         SELECT
-            c.nombre AS categoria,
+            CASE 
+                WHEN c.nombre = 'Distractivo' THEN 'Distractor'
+                ELSE c.nombre
+            END AS categoria,
             GREATEST(
                 TIMESTAMPDIFF(
                     SECOND,
