@@ -26,10 +26,10 @@ from app.modules.users.schemas.user_schema import (
     PasswordResetConfirm
 )
 
+ 
 ACCESS_TOKEN_EXPIRE_MINUTES = 5
 ALGORITHM = "HS256"
 
-# 🟢 MEMORIA GLOBAL (IMPORTANTE)
 RESET_TOKENS: Dict[str, dict] = {}
 
 
@@ -47,7 +47,7 @@ class UserService:
     async def create_user(self, user_create: UserCreate) -> UserResponse:
         existing_user = await self.repository.get_by_email(user_create.correo)
         if existing_user:
-            raise BusinessException("A user with this email already exists")
+            raise BusinessException("El correo electrónico ya está registrado")
 
         user = UserModel(
             correo=user_create.correo,
@@ -106,7 +106,7 @@ class UserService:
     async def authenticate_user(self, email: str, password: str) -> UserModel:
         user = await self.repository.get_by_email(email)
         if not user or not self._verify_password(password, user.contrasenia_hash):
-            raise AuthenticationException("Invalid email or password")
+            raise AuthenticationException("Correo o contraseña incorrectos")
         return user
 
     async def login(self, credentials: UserLogin) -> Token:

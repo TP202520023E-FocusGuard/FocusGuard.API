@@ -67,8 +67,6 @@ class WeeklyGoalService:
             update_data["opcion_2"] = data.opcion_2
         if data.opcion_3 is not None:
             update_data["opcion_3"] = data.opcion_3
-        if data.fecha_limite is not None:
-            update_data["fecha_limite"] = data.fecha_limite
             
         updated_goal = await self.repo.update(goal_id, update_data)
         return WeeklyGoalResponse.model_validate(updated_goal)

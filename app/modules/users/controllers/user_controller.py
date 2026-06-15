@@ -8,6 +8,7 @@ from app.core.exceptions import (
     DatabaseException,
     NotFoundException,
 )
+from app.core.security import get_current_user
 from app.modules.users.schemas.user_schema import (
     Token,
     UserCreate,
@@ -20,10 +21,15 @@ from app.modules.users.schemas.user_schema import (
 )
 from ..services.user_service import UserService
 
+
 router = APIRouter(prefix="/users", tags=["users"])
 
 def get_service(db: AsyncSession = Depends(get_db)) -> UserService:
     return UserService(db)
+
+@router.get("/me")
+async def me(user_id: str = Depends(get_current_user)):
+    return {"user_id": user_id}
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
