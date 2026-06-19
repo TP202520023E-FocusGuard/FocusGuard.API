@@ -27,7 +27,7 @@ from app.modules.users.schemas.user_schema import (
 )
 
  
-ACCESS_TOKEN_EXPIRE_MINUTES = 5
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 ALGORITHM = "HS256"
 
 RESET_TOKENS: Dict[str, dict] = {}
