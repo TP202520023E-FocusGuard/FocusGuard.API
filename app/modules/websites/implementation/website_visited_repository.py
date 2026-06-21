@@ -3,10 +3,15 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import label
+from sqlalchemy import func
 
+from app.modules.categories.models.category_website_model import CategoryWebsiteModel
+from app.modules.websites.models.website_model import WebsiteModel
+from app.modules.websites.models.website_user_model import WebsiteUserModel
 from ..models.website_visited_model import WebsiteVisitedModel
 from ..schemas.website_visited_schema import WebsiteVisitedCreate
 
@@ -94,3 +99,71 @@ class WebsiteVisitedRepository:
         except SQLAlchemyError:
             await self.db.rollback()
             raise
+    
+    async def get_summary_by_user_and_interval(
+        self,
+        user_id: int,
+        start: datetime | None,
+        end: datetime | None,
+    ):
+        filters = [
+            WebsiteVisitedModel.id_usuarios == user_id,
+            WebsiteVisitedModel.fecha_hora_salida.isnot(None),
+        ]
+
+        if start is not None:
+            filters.append(WebsiteVisitedModel.fecha_hora_ingreso >= start)
+
+        if end is not None:
+            filters.append(WebsiteVisitedModel.fecha_hora_ingreso <= end)
+
+        stmt = (
+            select(
+                WebsiteModel.dominio.label("domain"),
+                WebsiteVisitedModel.id_sitios_web_usuario.label("site_user_id"),
+
+                func.count(WebsiteVisitedModel.id).label("total_visits"),
+
+                (func.sum(
+                    func.timestampdiff(
+                        text("SECOND"),
+                        WebsiteVisitedModel.fecha_hora_ingreso,
+                        WebsiteVisitedModel.fecha_hora_salida
+                    )
+                ) / 60).label("total_minutes"),
+
+                func.min(WebsiteVisitedModel.fecha_hora_ingreso).label("first_visit"),
+                func.max(WebsiteVisitedModel.fecha_hora_ingreso).label("last_visit"),
+
+                CategoryWebsiteModel.codigo.label("category"),
+            )
+            .select_from(WebsiteVisitedModel)
+            .join(
+                WebsiteUserModel,
+                WebsiteUserModel.id == WebsiteVisitedModel.id_sitios_web_usuario
+            )
+            .join(
+                WebsiteModel,
+                WebsiteModel.id == WebsiteUserModel.id_sitios_web
+            )
+            .join(
+                CategoryWebsiteModel,
+                CategoryWebsiteModel.id == WebsiteVisitedModel.id_categorias_web
+            )
+            .where(*filters)
+            .group_by(
+                WebsiteModel.dominio,
+                CategoryWebsiteModel.codigo,
+                WebsiteVisitedModel.id_sitios_web_usuario
+            )
+            .order_by(func.sum(
+                func.timestampdiff(
+                    text("SECOND"),
+                    WebsiteVisitedModel.fecha_hora_ingreso,
+                    WebsiteVisitedModel.fecha_hora_salida
+                )
+            ).desc())
+        )
+
+        result = await self.db.execute(stmt)
+        return result.mappings().all()

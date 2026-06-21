@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Optional
 from app.core.exceptions import NotFoundException
 from datetime import datetime, timezone
 
@@ -6,7 +7,8 @@ from app.modules.users.implementation.user_repository import UserRepository
 from ..implementation.website_user_repository import WebsiteUserRepository
 from ..implementation.website_visited_repository import WebsiteVisitedRepository
 
-from ..schemas.website_visited_schema import (WebsiteVisitedCreate, WebsiteVisitedUpdate, WebsiteVisitedResponse)
+from ..schemas.website_visited_schema import (WebsiteVisitedCreate, WebsiteVisitedUpdate, 
+                                              WebsiteVisitedResponse, WebsiteVisitedSummary)
 
 
 class WebsiteVisitedService:
@@ -88,3 +90,24 @@ class WebsiteVisitedService:
 
         if not eliminado:
             raise ValueError("No se encontró el registro solicitado.")
+        
+    async def get_summary_by_user_and_interval(
+        self,
+        user_id: int,
+        start: Optional[datetime],
+        end: Optional[datetime],
+    ) -> list[WebsiteVisitedSummary]:
+
+        if start and end and start > end:
+            raise ValueError("La fecha inicial no puede ser mayor que la fecha final.")
+
+        registros = await self.repo.get_summary_by_user_and_interval(
+            user_id,
+            start,
+            end
+        )
+
+        return [
+            WebsiteVisitedSummary.model_validate(item)
+            for item in registros
+        ]

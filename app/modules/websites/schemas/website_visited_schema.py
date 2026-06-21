@@ -24,3 +24,11 @@ class WebsiteVisitedResponse(WebsiteVisitedBase):
 
     class Config:
         from_attributes = True
+
+class WebsiteVisitedSummary(BaseModel):
+    domain: str
+    total_minutes: float
+    total_visits: int
+    first_visit: datetime
+    last_visit: datetime
+    category: str

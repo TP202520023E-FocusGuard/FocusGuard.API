@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
@@ -10,7 +11,7 @@ from app.modules.users.implementation.user_repository import UserRepository
 from ..implementation.website_user_repository import WebsiteUserRepository
 from ..implementation.website_visited_repository import WebsiteVisitedRepository
 
-from ..schemas.website_visited_schema import WebsiteVisitedCreate, WebsiteVisitedUpdate, WebsiteVisitedResponse
+from ..schemas.website_visited_schema import WebsiteVisitedCreate, WebsiteVisitedUpdate, WebsiteVisitedResponse, WebsiteVisitedSummary
 from ..services.website_visited_service import WebsiteVisitedService
 
 router = APIRouter(prefix="/website-visited", tags=["website_visited"])
@@ -111,4 +112,26 @@ async def delete_visit(
     except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
+    
+@router.get(
+    "/users/{user_id}/summary",
+    response_model=list[WebsiteVisitedSummary],
+)
+async def get_summary_by_user_and_interval(
+    user_id: int,
+    start: Optional[datetime] = Query(None, description="Fecha inicio del intervalo"),
+    end: Optional[datetime] = Query(None, description="Fecha fin del intervalo"),
+    service: WebsiteVisitedService = Depends(get_service),
+):
+    try:
+        return await service.get_summary_by_user_and_interval(
+            user_id,
+            start,
+            end
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc)
         ) from exc
